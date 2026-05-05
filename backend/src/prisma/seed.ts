@@ -32,8 +32,25 @@ async function main() {
         }
     });
 
+    await prisma.user.create({
+        data: {
+            nome: 'Fernando Financeiro',
+            email: 'financeiro@test.com',
+            senha: senhaHash,
+            perfil: 'FINANCEIRO'
+        }
+    });
 
-    console.log('Seed executado: Usuários e Categorias criados!');
+    await prisma.user.create({
+        data: {
+            nome: 'Ana Administradora',
+            email: 'admin@test.com',
+            senha: senhaHash,
+            perfil: 'ADMIN'
+        }
+    });
+
+    console.log('Seed executado: Usuários (COLABORADOR, GESTOR, FINANCEIRO, ADMIN) e Categorias criados!');
 }
 
 main()

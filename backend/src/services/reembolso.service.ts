@@ -247,12 +247,11 @@ export class ReembolsoService {
 
     // 7. LISTAR
     async listByUser(userId: string, perfil: string) {
-        // Se for gestor ou financeiro, pode ver tudo. Se colab, só as dele.
         const filter = perfil === 'COLABORADOR' ? { solicitanteId: userId } : {};
 
         return await prisma.solicitacao.findMany({
             where: filter,
-            include: { categoria: true },
+            include: { categoria: true, anexos: true },
             orderBy: { criadoEm: 'desc' }
         });
     }
@@ -269,5 +268,16 @@ export class ReembolsoService {
 
         if (historico.length === 0) throw new AppError("Histórico não encontrado", 404);
         return historico;
+    }
+
+    // 7. LISTAR ANEXOS
+    async getAnexos(solicitacaoId: string) {
+        const solicitacao = await prisma.solicitacao.findUnique({ where: { id: solicitacaoId } });
+        if (!solicitacao) throw new AppError("Solicitação não encontrada", 404);
+
+        return await prisma.anexo.findMany({
+            where: { solicitacaoId },
+            orderBy: { criadoEm: 'asc' }
+        });
     }
 }

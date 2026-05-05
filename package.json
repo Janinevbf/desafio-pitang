@@ -34,9 +34,8 @@
     "seed": "bun prisma/seed.ts"
   },
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.ts",
+    "dev": "bun --watch backend/src/index.ts",
+    "start": "bun backend/src/index.ts",
     "test": "jest"
   }
 }

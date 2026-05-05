@@ -3,8 +3,12 @@ import { authMiddleware } from '../middlewares/auth.middlewares';
 import { PrismaClient } from '@prisma/client';
 import { ReembolsoService } from '../services/reembolso.service';
 import { criarReembolsoSchema, avaliarReembolsoSchema, editarReembolsoSchema } from '../schemas/reembolso.schema';
-import { authorize } from '../middlewares/role.middlewares'; // Ajustado para o caminho padrão de middlewares
+import { authorize } from '../middlewares/role.middlewares';
 import { z } from 'zod';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
+
+dayjs.locale('pt-br');
 
 
 const reembolsoRoutes = Router();
@@ -70,13 +74,23 @@ reembolsoRoutes.get('/meus-reembolsos', authMiddleware, async (req, res) => {
     }
 });
 
-// Listagem de pendentes (Apenas Gestor/Admin)
-reembolsoRoutes.get('/pendentes', authMiddleware, authorize(['GESTOR', 'ADMIN']), async (req, res) => {
+// Listagem de pendentes (Apenas Gestor)
+reembolsoRoutes.get('/pendentes', authMiddleware, authorize(['GESTOR']), async (req, res) => {
     const pendentes = await prisma.solicitacao.findMany({
-        where: { status: 'ENVIADO' },
+        where: { status: 'SUBMITTED' },
         include: { solicitante: { select: { nome: true, email: true } } }
     });
     return res.json(pendentes);
+});
+
+// Listagem de aprovadas (Apenas Financeiro)
+reembolsoRoutes.get('/aprovados', authMiddleware, authorize(['FINANCEIRO']), async (req, res) => {
+    const aprovados = await prisma.solicitacao.findMany({
+        where: { status: 'APPROVED' },
+        include: { solicitante: { select: { nome: true, email: true } }, anexos: true, categoria: true },
+        orderBy: { criadoEm: 'desc' }
+    });
+    return res.json(aprovados);
 });
 
 // Enviar para análise
@@ -91,8 +105,8 @@ reembolsoRoutes.post('/:id/enviar', authMiddleware, async (req, res) => {
     }
 });
 
-// Aprovar ou Rejeitar (Com registro de Histórico)
-reembolsoRoutes.patch('/:id/avaliar', authMiddleware, authorize(['GESTOR', 'ADMIN']), async (req, res) => {
+// Aprovar ou Rejeitar (Apenas Gestor)
+reembolsoRoutes.patch('/:id/avaliar', authMiddleware, authorize(['GESTOR']), async (req, res) => {
     try {
         const { id } = req.params;
         const { status, justificativa } = avaliarReembolsoSchema.parse(req.body);
@@ -114,8 +128,8 @@ reembolsoRoutes.patch('/:id/avaliar', authMiddleware, authorize(['GESTOR', 'ADMI
     }
 });
 
-// Marcar como PAGO (Apenas Financeiro/Admin)
-reembolsoRoutes.patch('/:id/pagar', authMiddleware, authorize(['FINANCEIRO', 'ADMIN']), async (req, res) => {
+// Marcar como PAGO (Apenas Financeiro)
+reembolsoRoutes.patch('/:id/pagar', authMiddleware, authorize(['FINANCEIRO']), async (req, res) => {
     try {
         const { id } = req.params;
         const resultado = await service.markAsPaid(id as string, req.user!.id, req.user!.perfil);
@@ -136,7 +150,7 @@ reembolsoRoutes.patch('/:id/cancelar', authMiddleware, async (req, res) => {
     }
 });
 
-// Histórico da Solicitação (Manipulação de data com Intl)
+// Histórico da Solicitação (Manipulação de data com DayJs)
 reembolsoRoutes.get('/:id/historico', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
@@ -144,13 +158,21 @@ reembolsoRoutes.get('/:id/historico', authMiddleware, async (req, res) => {
 
         const historicoFormatado = historico.map(item => ({
             ...item,
-            dataFormatada: new Intl.DateTimeFormat('pt-BR', {
-                dateStyle: 'short',
-                timeStyle: 'short'
-            }).format(item.criadoEm)
+            dataFormatada: dayjs(item.criadoEm).format('DD/MM/YYYY HH:mm')
         }));
 
         return res.json(historicoFormatado);
+    } catch (error: any) {
+        return res.status(400).json({ error: error.message });
+    }
+});
+
+// Listar Anexos da Solicitação
+reembolsoRoutes.get('/:id/anexos', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const anexos = await service.getAnexos(id as string);
+        return res.json(anexos);
     } catch (error: any) {
         return res.status(400).json({ error: error.message });
     }
