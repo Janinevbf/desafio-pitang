@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Enums para garantir a integridade dos dados
+enum Role {
+  COLABORADOR
+  GESTOR
+  FINANCEIRO
+  ADMIN
+}
+
+enum Status {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+  CANCELED
+}
+
+enum Action {
+  CREATED
+  UPDATED
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+  CANCELED
+}
+
+model User {
+  id           String        @id @default(uuid())
+  nome         String
+  email        String        @unique
+  senha        String
+  perfil       Role          @default(COLABORADOR)
+  solicitacoes Solicitacao[] // Um usuário pode ter várias solicitações
+  historicos   Historico[] // Ações que este usuário realizou
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+}
+
+model Categoria {
+  id           String        @id @default(uuid())
+  nome         String
+  ativo        Boolean       @default(true)
+  solicitacoes Solicitacao[]
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+}
+
+model Solicitacao {
+  id                    String   @id @default(uuid())
+  status                String   @default("SUBMITTED")
+  descricao             String
+  valor                 Decimal // Decimal é melhor que Float para dinheiro
+  dataDespesa           DateTime
+  justificativaRejeicao String? // Opcional, preenchido no status REJEITADO
+
+  // Relacionamentos
+  solicitante   User      @relation(fields: [solicitanteId], references: [id])
+  solicitanteId String
+  categoria     Categoria @relation(fields: [categoriaId], references: [id])
+  categoriaId   String
+
+  anexos     Anexo[]
+  historicos Historico[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+model Anexo {
+  id            String      @id @default(uuid())
+  nomeArquivo   String
+  urlArquivo    String
+  tipoArquivo   String // Ex: image/jpeg, application/pdf
+  solicitacao   Solicitacao @relation(fields: [solicitacaoId], references: [id])
+  solicitacaoId String
+  criadoEm      DateTime    @default(now())
+}
+
+model Historico {
+  id            String   @id @default(uuid())
+  solicitacaoId String
+  usuarioId     String
+  acao          Action // Agora usando o Enum Action em inglês
+  observacao    String
+  criadoEm      DateTime @default(now())
+
+  solicitacao Solicitacao @relation(fields: [solicitacaoId], references: [id])
+  usuario     User        @relation(fields: [usuarioId], references: [id])
+}
