@@ -31,6 +31,7 @@
     "zod": "^4.4.3"
   },
   "prisma": {
+    "schema": "prisma/schema.prisma",
     "seed": "bun prisma/seed.ts"
   },
   "scripts": {

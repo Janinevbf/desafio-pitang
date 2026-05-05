@@ -93,6 +93,23 @@ reembolsoRoutes.get('/aprovados', authMiddleware, authorize(['FINANCEIRO']), asy
     return res.json(aprovados);
 });
 
+// Rejeitar Solicitação (Apenas Gestor) - POST específico
+reembolsoRoutes.post('/:id/rejeitar', authMiddleware, authorize(['GESTOR']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { justificativa } = req.body;
+
+        if (!justificativa) {
+            return res.status(400).json({ error: "Justificativa de rejeição é obrigatória" });
+        }
+
+        const resultado = await service.assess(id as string, req.user!.id, req.user!.perfil, 'REJEITADO', justificativa);
+        return res.json({ message: "Solicitação rejeitada com sucesso!", resultado });
+    } catch (error: any) {
+        return res.status(error.statusCode || 400).json({ error: error.message });
+    }
+});
+
 // Enviar para análise
 reembolsoRoutes.post('/:id/enviar', authMiddleware, async (req, res) => {
     try {
@@ -101,6 +118,23 @@ reembolsoRoutes.post('/:id/enviar', authMiddleware, async (req, res) => {
         return res.json(result);
     } catch (error: any) {
         // Trata AppError e outros erros
+        return res.status(error.statusCode || 400).json({ error: error.message });
+    }
+});
+
+// Rejeitar Solicitação (Apenas Gestor) - POST específico
+reembolsoRoutes.post('/:id/rejeitar', authMiddleware, authorize(['GESTOR']), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { justificativa } = req.body;
+
+        if (!justificativa) {
+            return res.status(400).json({ error: "Justificativa de rejeição é obrigatória" });
+        }
+
+        const resultado = await service.assess(id as string, req.user!.id, req.user!.perfil, 'REJEITADO', justificativa);
+        return res.json({ message: "Solicitação rejeitada com sucesso!", resultado });
+    } catch (error: any) {
         return res.status(error.statusCode || 400).json({ error: error.message });
     }
 });
@@ -150,6 +184,17 @@ reembolsoRoutes.patch('/:id/cancelar', authMiddleware, async (req, res) => {
     }
 });
 
+// Detalhar Solicitação Específica
+reembolsoRoutes.get('/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await service.detalhar(id as string, req.user!.id, req.user!.perfil);
+        return res.json(resultado);
+    } catch (error: any) {
+        return res.status(error.statusCode || 400).json({ error: error.message });
+    }
+});
+
 // Histórico da Solicitação (Manipulação de data com DayJs)
 reembolsoRoutes.get('/:id/historico', authMiddleware, async (req, res) => {
     try {
@@ -175,6 +220,17 @@ reembolsoRoutes.get('/:id/anexos', authMiddleware, async (req, res) => {
         return res.json(anexos);
     } catch (error: any) {
         return res.status(400).json({ error: error.message });
+    }
+});
+
+// Detalhar Solicitação Específica (deve ser a última rota com :id)
+reembolsoRoutes.get('/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await service.detalhar(id as string, req.user!.id, req.user!.perfil);
+        return res.json(resultado);
+    } catch (error: any) {
+        return res.status(error.statusCode || 400).json({ error: error.message });
     }
 });
 

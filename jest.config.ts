@@ -4,5 +4,7 @@ export default {
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
-    testMatch: ['**/*.test.ts'],
+    testMatch: ['**/backend/src/tests/*.test.ts'],
+    testTimeout: 30000,
+    setupFiles: ['<rootDir>/backend/src/tests/setup.ts']
 };

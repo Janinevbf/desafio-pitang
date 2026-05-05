@@ -18,7 +18,7 @@ export class UsuarioController {
     async buscarPorId(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const usuario = await usuarioService.buscarPorId(id);
+            const usuario = await usuarioService.buscarPorId(id as string);
             return res.json(usuario);
         } catch (error: any) {
             return res.status(error.statusCode || 400).json({ error: error.message });
@@ -48,7 +48,7 @@ export class UsuarioController {
         try {
             const { id } = req.params;
             const dados = editarUsuarioSchema.parse(req.body);
-            const usuario = await usuarioService.editar(id, dados);
+            const usuario = await usuarioService.editar(id as string, dados);
             return res.json(usuario);
         } catch (error: any) {
             if (error instanceof z.ZodError) {
@@ -67,7 +67,7 @@ export class UsuarioController {
     async deletar(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            await usuarioService.deletar(id);
+            await usuarioService.deletar(id as string);
             return res.json({ mensagem: "Usuário removido com sucesso" });
         } catch (error: any) {
             return res.status(error.statusCode || 400).json({ error: error.message });

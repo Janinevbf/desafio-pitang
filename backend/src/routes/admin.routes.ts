@@ -38,7 +38,7 @@ adminRoutes.get('/dashboard', async (req, res) => {
             estatisticas: {
                 totalSolicitacoes,
                 totalUsuarios,
-                totalCategoriasAtivas,
+                totalCategoriasAtivas: totalCategorias,
                 valorTotalReembolsos: valorTotal._sum.valor
             },
             statusSolicitacoes: statusCount

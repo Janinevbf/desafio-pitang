@@ -11,7 +11,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Rotas
+
+app.get('/', (req, res) => {
+    res.json({ message: "API de Reembolsos online!" });
+});
 app.use('/auth', authRoutes);
 app.use('/reembolsos', reembolsoRoutes);
 app.use('/categorias', categoriaRoutes);

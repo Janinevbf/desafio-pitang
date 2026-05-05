@@ -7,8 +7,13 @@ const prisma = new PrismaClient();
 async function main() {
     const senhaHash = await bcrypt.hash('pitang123', 10);
 
-    // Criando Categorias
-    // Criando Categorias uma por uma para evitar erros no SQLite
+    // Limpa dados existentes
+    await prisma.solicitacao.deleteMany();
+    await prisma.anexo.deleteMany();
+    await prisma.historico.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.categoria.deleteMany();
+
     await prisma.categoria.create({ data: { nome: 'Transporte' } });
     await prisma.categoria.create({ data: { nome: 'Alimentação' } });
     await prisma.categoria.create({ data: { nome: 'Hospedagem' } });

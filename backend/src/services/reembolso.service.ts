@@ -280,4 +280,30 @@ export class ReembolsoService {
             orderBy: { criadoEm: 'asc' }
         });
     }
+
+    // 8. DETALHAR SOLICITAÇÃO
+    async detalhar(id: string, userId: string, userPerfil: string) {
+        const solicitacao = await prisma.solicitacao.findUnique({
+            where: { id },
+            include: {
+                categoria: true,
+                anexos: true,
+                solicitante: { select: { id: true, nome: true, email: true, perfil: true } },
+                historicos: {
+                    include: { usuario: { select: { nome: true, perfil: true } } },
+                    orderBy: { criadoEm: 'asc' }
+                }
+            }
+        });
+
+        if (!solicitacao) throw new AppError("Solicitação não encontrada", 404);
+
+        // Apenas o solicitante, GESTOR, FINANCEIRO ou ADMIN podem ver
+        const podeVisualizar = solicitacao.solicitanteId === userId ||
+            ['GESTOR', 'FINANCEIRO', 'ADMIN'].includes(userPerfil);
+
+        if (!podeVisualizar) throw new AppError("Acesso negado", 403);
+
+        return solicitacao;
+    }
 }

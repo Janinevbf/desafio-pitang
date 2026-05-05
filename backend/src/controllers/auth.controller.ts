@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
 import { loginSchema, cadastroSchema } from '../schemas/auth.schema';
-import { z } from 'zod'; // Importante para o instanceof
+import { z } from 'zod';
 
 const authService = new AuthService();
 
-// ... (restante dos imports)
+
 
 export class AuthController {
     async login(req: Request, res: Response) {
@@ -19,11 +19,11 @@ export class AuthController {
 
             return res.json(result);
         } catch (error: any) {
-            // AQUI A MUDANÇA:
+
             if (error instanceof z.ZodError) {
                 return res.status(400).json({
                     mensagem: "Erro de validação",
-                    // Trocamos 'errors' por 'issues' e tipamos 'e' como 'z.ZodIssue'
+
                     detalhes: error.issues.map((e: z.ZodIssue) => ({
                         campo: e.path[0],
                         mensagem: e.message

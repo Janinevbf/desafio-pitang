@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { AppError } from '../errors/AppError';
 
@@ -47,7 +47,7 @@ export class UsuarioService {
                 nome: data.nome,
                 email: data.email,
                 senha: senhaHash,
-                perfil: data.perfil
+                perfil: data.perfil as Role
             },
             select: {
                 id: true,
@@ -74,7 +74,7 @@ export class UsuarioService {
         const updateData: any = {};
         if (data.nome) updateData.nome = data.nome;
         if (data.email) updateData.email = data.email;
-        if (data.perfil) updateData.perfil = data.perfil;
+        if (data.perfil) updateData.perfil = data.perfil as Role;
         if (data.senha) updateData.senha = await bcrypt.hash(data.senha, 12);
 
         return await prisma.user.update({
