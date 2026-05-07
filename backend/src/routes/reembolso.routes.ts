@@ -7,9 +7,23 @@ import { authorize } from '../middlewares/role.middlewares';
 import { z } from 'zod';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
+import multer from 'multer';
+import path from 'path';
 
 dayjs.locale('pt-br');
 
+// Configura onde e com qual nome o arquivo será salvo
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Certifique-se de criar essa pasta na raiz do backend!
+    },
+    filename: (req, file, cb) => {
+        const time = new Date().getTime();
+        cb(null, `${time}_${file.originalname}`);
+    }
+});
+
+const upload = multer({ storage });
 
 const reembolsoRoutes = Router();
 const service = new ReembolsoService();
@@ -223,15 +237,39 @@ reembolsoRoutes.get('/:id/anexos', authMiddleware, async (req, res) => {
     }
 });
 
-// Detalhar Solicitação Específica (deve ser a última rota com :id)
-reembolsoRoutes.get('/:id', authMiddleware, async (req, res) => {
+reembolsoRoutes.post('/:id/anexos', authMiddleware, upload.single('arquivo'), async (req, res) => {
     try {
-        const { id } = req.params;
-        const resultado = await service.detalhar(id as string, req.user!.id, req.user!.perfil);
-        return res.json(resultado);
-    } catch (error: any) {
-        return res.status(error.statusCode || 400).json({ error: error.message });
+        const { id } = req.params as { id: string };
+        const file = req.file;
+
+        if (!file) {
+            return res.status(400).json({ message: "O arquivo é obrigatório." });
+        }
+
+        const anexo = await prisma.anexo.create({
+            data: {
+                nomeArquivo: file.originalname,
+                urlArquivo: file.path,
+                tipoArquivo: file.mimetype,
+                solicitacaoId: id
+            }
+        });
+
+        return res.status(201).json(anexo);
+
+    } catch (error) {
+
+        console.error("[ReembolsoAnexoError]:", {
+            requestId: req.id,
+            solicitacaoId: req.params.id,
+            error: error instanceof Error ? error.message : "Erro desconhecido"
+        });
+
+
+        return res.status(500).json({
+            message: "Ocorreu um erro interno ao processar o anexo. Tente novamente mais tarde."
+        });
     }
-});
+}); s
 
 export { reembolsoRoutes };
