@@ -42,3 +42,5 @@ Admin: Cadastro e inativação de categorias de despesa.
 
 ## Observações:
 O sistema bloqueia edições em solicitações que não estejam em status de Rascunho.
+
+Certifique-se de criar a pasta backend/uploads manualmente antes de rodar o projeto

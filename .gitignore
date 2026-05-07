@@ -1,44 +1,12 @@
-# dependencies (bun install)
-node_modules
+# Ignorar banco de dados
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
 
-# output
-out
-dist
-*.tgz
+# Ignorar uploads
+backend/uploads/
 
-# code coverage
-coverage
-*.lcov
+*.jpg
 
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
+# Ignorar pastas de sistema
+node_modules/
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
-# caches
-.eslintcache
-.cache
-*.tsbuildinfo
-
-# IntelliJ based IDEs
-.idea
-
-# Finder (MacOS) folder config
-.DS_Store
-
-/generated/prisma
-
-#banco dados
-*.db
-*.db-journal
-
-
-#pastas
-src/uploads/
