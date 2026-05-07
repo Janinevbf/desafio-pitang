@@ -1,0 +1,715 @@
+{
+  "info": {
+    "_postman_id": "a13b2c27-c3b6-49fd-9c4e-90e9c487a261",
+    "name": "desafio-pitang-sistema-reembolso",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54502866",
+    "_collection_link": "https://go.postman.co/collection/54502866-a13b2c27-c3b6-49fd-9c4e-90e9c487a261?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01-autenticação",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\":\"admin@test.com\",\r\n    \"senha\":\"pitang123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "cadastro login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nome\":\"Novo user\",\r\n    \"email\":\"novo@pitang.com\",\r\n    \"senha\":\"pitang123\",\r\n    \"perfil\": \"COLABORADOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/auth/cadastro",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "auth",
+                "cadastro"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02-Categorias",
+      "item": [
+        {
+          "name": "Listar categorias",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwYWYzN2IxLWI0MzktNDA5NS04YTMyLTJmYzc2ZDA3NWRmMSIsInBlcmZpbCI6IkZJTkFOQ0VJUk8iLCJpYXQiOjE3NzgwMDMyMTcsImV4cCI6MTc3ODA4OTYxN30.DoY8eePw4YDXHuqczn_BWE82v06GpRcP0m8XfNWFmCY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/categorias",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "categorias"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cria categorias(admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkMzMyZTMwLWNmMTEtNDY4Yy05NzgwLWJiMTQ0MTc1MjE1OCIsInBlcmZpbCI6IkFETUlOIiwiaWF0IjoxNzc4MTgzNTAzLCJleHAiOjE3NzgyNjk5MDN9.AGatOzBQdPxULNy7SsRGjvn7YL5r6b9ihruTrUbcVCw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nome\":\"RH\",\r\n    \"status\":\"ativo\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/categorias",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "categorias"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualiza categorias",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkMzMyZTMwLWNmMTEtNDY4Yy05NzgwLWJiMTQ0MTc1MjE1OCIsInBlcmZpbCI6IkFETUlOIiwiaWF0IjoxNzc4MTgwNDIyLCJleHAiOjE3NzgyNjY4MjJ9.x0Uf8z9eJmLbHuY86lxY0n7ruaSvTpgaRbwAbonZ_L8",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nome\":\"Recursos Humanos\"\r\n   \r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/categorias/d0ad465d-70ee-40ee-bb4d-38ce5c5e5381",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "categorias",
+                "d0ad465d-70ee-40ee-bb4d-38ce5c5e5381"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03-Solicitações",
+      "item": [
+        {
+          "name": "Lista reembolsos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkMzMyZTMwLWNmMTEtNDY4Yy05NzgwLWJiMTQ0MTc1MjE1OCIsInBlcmZpbCI6IkFETUlOIiwiaWF0IjoxNzc4MTc4MjUwLCJleHAiOjE3NzgyNjQ2NTB9.om5bsULcYdi_k2PriGoFixLIIoRypnRJ-zHSqCmtuLE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/meus-reembolsos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "meus-reembolsos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cria solicitação de reembolso(Draft)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgwNWEzZjhjLTFlYTYtNDQ4MS1iODExLTQ4MTg3ZDY0YTY4OCIsInBlcmZpbCI6IkdFU1RPUiIsImlhdCI6MTc3ODE3OTIyNywiZXhwIjoxNzc4MjY1NjI3fQ.rGz_EzuEKgKAZpyFxA-4GGW-YNnnkXuaclqG9vEGlbQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"Natal\", \r\n\"valor\": 300.00, \r\n\"categoriaId\": \"a50c4911-2782-4d0a-befc-9dc0a21772e4\", \r\n\"dataDespesa\": \"2026-05-05T11:00:00Z\", \r\n\"descricao\": \"festa)\", \r\n\"anexoUrl\": \"https://exemplo.com/anexo.pdf\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detalha solicitação(especifica)",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkMzMyZTMwLWNmMTEtNDY4Yy05NzgwLWJiMTQ0MTc1MjE1OCIsInBlcmZpbCI6IkFETUlOIiwiaWF0IjoxNzc4MTc4MjUwLCJleHAiOjE3NzgyNjQ2NTB9.om5bsULcYdi_k2PriGoFixLIIoRypnRJ-zHSqCmtuLE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nome\":\"Tecnologia\",\r\n    \"status\":\"ativo\"\r\n   \r\n\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/b337fbcf-46d7-4185-8ccc-8d50ae6fdfd9",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "b337fbcf-46d7-4185-8ccc-8d50ae6fdfd9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "edita solicitação",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA2NTM0MDY4LTQxZDgtNDQ1OS05Y2IyLWM5NzE3MGU0ZDg1YSIsInBlcmZpbCI6IkFETUlOIiwiaWF0IjoxNzc4MDA3MTUzLCJleHAiOjE3NzgwOTM1NTN9.qM--vBEw7eOrFbLJMjF3ew0DuGsPLc_n82Sf9OI1rrc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nome\":\"Vidro para janela\",\r\n    \"valor\":1000.0,\r\n    \"categoriaId\":\"fa94ba89-1e40-4813-a6a9-83b5b01ab96e\",\r\n    \"descricao\":\"Sala do escritorio tech\",\r\n    \"dataDespesa\":\"2026-05-06\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/4d9da0d7-47f6-4046-a7eb-4855961213aa",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "4d9da0d7-47f6-4046-a7eb-4855961213aa"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Enviar solicitação",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgwNWEzZjhjLTFlYTYtNDQ4MS1iODExLTQ4MTg3ZDY0YTY4OCIsInBlcmZpbCI6IkdFU1RPUiIsImlhdCI6MTc3ODE3OTkzOCwiZXhwIjoxNzc4MjY2MzM4fQ.tvvfFc2G9UK6xAHWfeg3afJQi9FdR612e9eMuPwxy8s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/20ff478f-4820-4b5e-a8ef-8bfc84276be7/enviar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "20ff478f-4820-4b5e-a8ef-8bfc84276be7",
+                "enviar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "upload anexo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkMzMyZTMwLWNmMTEtNDY4Yy05NzgwLWJiMTQ0MTc1MjE1OCIsInBlcmZpbCI6IkFETUlOIiwiaWF0IjoxNzc4MTgwNDIyLCJleHAiOjE3NzgyNjY4MjJ9.x0Uf8z9eJmLbHuY86lxY0n7ruaSvTpgaRbwAbonZ_L8",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "reembolsoId",
+                  "description": "comprovante",
+                  "type": "file",
+                  "uuid": "5986e63c-94bd-4923-885f-8637edc71f9a",
+                  "src": "/C:/Users/Janine Vitória/Downloads/teste..jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/b10eeea8-9d7b-4ea8-9c90-b498b68d76c1/anexos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "b10eeea8-9d7b-4ea8-9c90-b498b68d76c1",
+                "anexos"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-Aprovação(Gestor/Financeiro)",
+      "item": [
+        {
+          "name": "Aprova solicitação",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJhMTg3NTg1LTkyNWUtNDQ4OS1hMjVmLTEyMDBiYTU0OWM0YSIsInBlcmZpbCI6IkdFU1RPUiIsImlhdCI6MTc3ODAwOTQ3OCwiZXhwIjoxNzc4MDk1ODc4fQ.79s74VxmBlzfQlXgc3DqKjv32LZVu2yFlO-YxNmnuKg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\":\"APROVADO\"\r\n    \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/4d9da0d7-47f6-4046-a7eb-4855961213aa/avaliar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "4d9da0d7-47f6-4046-a7eb-4855961213aa",
+                "avaliar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rejeita solicitação(dono)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgwNWEzZjhjLTFlYTYtNDQ4MS1iODExLTQ4MTg3ZDY0YTY4OCIsInBlcmZpbCI6IkdFU1RPUiIsImlhdCI6MTc3ODE4MDI5NSwiZXhwIjoxNzc4MjY2Njk1fQ.ZleFn9s6Yy6JgnQTqBlAbd-3S1iVyDm4ex5uFojl5F4",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \r\n    \"justificativa\": \"Despesa rejeitada por motivos internos\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/20ff478f-4820-4b5e-a8ef-8bfc84276be7/cancelar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "20ff478f-4820-4b5e-a8ef-8bfc84276be7",
+                "cancelar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Paga (financeiro)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcxMGZhMzg5LWU0ZWUtNDQ3Yi04YTBkLWVlZDk0MzY1ZmFhMSIsInBlcmZpbCI6IkZJTkFOQ0VJUk8iLCJpYXQiOjE3NzgxODAwODcsImV4cCI6MTc3ODI2NjQ4N30.0GmhmuycP-0FMv9S-LlMTouL9QQ3LXjO21UFfSLu0KE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/20ff478f-4820-4b5e-a8ef-8bfc84276be7/pagar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "20ff478f-4820-4b5e-a8ef-8bfc84276be7",
+                "pagar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05-Historico",
+      "item": [
+        {
+          "name": "historico solicitação(todos)",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkMzMyZTMwLWNmMTEtNDY4Yy05NzgwLWJiMTQ0MTc1MjE1OCIsInBlcmZpbCI6IkFETUlOIiwiaWF0IjoxNzc4MTc4MjUwLCJleHAiOjE3NzgyNjQ2NTB9.om5bsULcYdi_k2PriGoFixLIIoRypnRJ-zHSqCmtuLE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"url\": \"https://exemplo.com/arquivo.pdf\",\r\n  \"nomeArquivo\": \"comprovante.pdf\",\r\n  \"tipoArquivo\": \"application/pdf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/20ff478f-4820-4b5e-a8ef-8bfc84276be7/historico",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "20ff478f-4820-4b5e-a8ef-8bfc84276be7",
+                "historico"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "lista de historico solicitação(todos)",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmNWU5MGI4LWMzMWItNDY5Mi05ZThjLTE2YzM1MzY2NTM5OSIsInBlcmZpbCI6IkZJTkFOQ0VJUk8iLCJpYXQiOjE3Nzc5MDQzODEsImV4cCI6MTc3Nzk5MDc4MX0.r5HUkjN-taCM5PeqJVy-nGV8xw5the6yIKMI3V0Wlzc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/reembolsos/4d9da0d7-47f6-4046-a7eb-4855961213aa/historico",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "reembolsos",
+                "4d9da0d7-47f6-4046-a7eb-4855961213aa",
+                "historico"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "token_colaborador",
+      "value": ""
+    }
+  ]
+}

@@ -17,5 +17,6 @@ export function PrivateRoute({ children, roles }: PrivateRouteProps) {
         return <Navigate to="/dashboard" />; // Redireciona se não tiver permissão
     }
 
+
     return children;
 }

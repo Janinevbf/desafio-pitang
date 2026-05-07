@@ -17,6 +17,14 @@ export const Select = ({ children, onValueChange, value, required }: any) => {
 }
 
 export const SelectTrigger = ({ children }: any) => <>{children}</>
-export const SelectValue = ({ placeholder }: any) => <option value="" disabled selected>{placeholder}</option>
 export const SelectContent = ({ children }: any) => <>{children}</>
-export const SelectItem = ({ value, children }: any) => <option value={value}>{children}</option>
+// Adicione este componente aqui se ele não existir:
+export const SelectItem = ({ value, children }: any) => (
+    <option value={value}>{children}</option>
+)
+
+// O SelectValue não é necessário para o select nativo, 
+// mas vamos deixar como fragmento para não quebrar seu Form
+export const SelectValue = ({ placeholder }: any) => (
+    <option value="" disabled hidden>{placeholder}</option>
+)

@@ -32,9 +32,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     // Log para depuração interna
     console.error(' [SERVER ERROR]:', err);
 
+    const message = err instanceof Error ? err.message : 'Internal server error';
+
     return res.status(500).json({
         status: 'error',
-        message: 'Internal server error'
+        message
     });
 });
 

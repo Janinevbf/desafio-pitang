@@ -12,10 +12,11 @@ import path from 'path';
 
 dayjs.locale('pt-br');
 
+
 // Configura onde e com qual nome o arquivo será salvo
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Certifique-se de criar essa pasta na raiz do backend!
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
         const time = new Date().getTime();
@@ -57,12 +58,18 @@ reembolsoRoutes.post('/', authMiddleware, async (req, res) => {
     }
 });
 
+
 // Editar Reembolso (Apenas Rascunho)
 reembolsoRoutes.put('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const dadosValidados = editarReembolsoSchema.parse(req.body);
-        const resultado = await service.editar(id as string, req.user!.id, dadosValidados);
+        const resultado = await service.editar(
+            id as string,
+            req.user!.id,
+            req.user!.perfil, // <-- Passe o perfil aqui
+            dadosValidados
+        );
         return res.json({ message: "Reembolso atualizado com sucesso!", resultado });
     } catch (error: any) {
         if (error instanceof z.ZodError) {
@@ -177,7 +184,7 @@ reembolsoRoutes.patch('/:id/avaliar', authMiddleware, authorize(['GESTOR']), asy
 });
 
 // Marcar como PAGO (Apenas Financeiro)
-reembolsoRoutes.patch('/:id/pagar', authMiddleware, authorize(['FINANCEIRO']), async (req, res) => {
+reembolsoRoutes.patch('/:id/pagar', authMiddleware, authorize(['FINANCEIRO', 'GESTOR']), async (req, res) => {
     try {
         const { id } = req.params;
         const resultado = await service.markAsPaid(id as string, req.user!.id, req.user!.perfil);
@@ -267,9 +274,9 @@ reembolsoRoutes.post('/:id/anexos', authMiddleware, upload.single('arquivo'), as
 
 
         return res.status(500).json({
-            message: "Ocorreu um erro interno ao processar o anexo. Tente novamente mais tarde."
+            message: error instanceof Error ? error.message : "Erro desconhecido"
         });
     }
-}); s
+});
 
 export { reembolsoRoutes };

@@ -16,6 +16,7 @@ export default function LoginPage() {
     const navigate = useNavigate()
 
     async function handleLogin(e: React.FormEvent) {
+
         e.preventDefault()
         setErrorMessage("") // Limpa erro anterior
 
@@ -26,7 +27,8 @@ export default function LoginPage() {
 
         try {
             setLoading(true)
-            await signIn({ email, senha })
+            const response = await signIn({ email, senha })
+
             navigate("/dashboard")
         } catch (error: any) {
             console.error("DADOS DA RESPOSTA DO BACKEND:", error.response?.data);
@@ -36,6 +38,7 @@ export default function LoginPage() {
             setLoading(false);
         }
     }
+
 
     return (
         <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 px-4">
