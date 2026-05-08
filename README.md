@@ -1,46 +1,112 @@
-# Sistema de Gestão de Reembolsos 
+# Sistema de Gestao de Reembolsos
 
-### Tecnologias Utilizadas
-Frontend: React, Tailwind CSS, Shadcn/UI, Lucide React.
-Backend: Node.js, Prisma ORM, JWT (Autenticação).
-Validação: Zod & React Hook Form.
+Sistema completo para gerenciamento de reembolsos com autenticacao JWT, upload de comprovantes e controle de perfis (Colaborador, Gestor, Financeiro, Admin).
 
-## Como Executar o Projeto1. Backend
+## Tecnologias Utilizadas
+
+### Frontend
+- **React 19** com **TypeScript**
+- **Vite** (bundler)
+- **Tailwind CSS** (estilizacao)
+- **Shadcn/UI + Radix UI** (componentes)
+- **React Router DOM** (roteamento)
+- **React Hook Form + Zod** (formularios e validacao)
+- **Axios** (HTTP client)
+- **Sonner** (notificacoes)
+
+### Backend
+- **Node.js** com **Express**
+- **TypeScript**
+- **Prisma ORM** + **SQLite**
+- **JWT** (autenticacao)
+- **Multer** (upload de arquivos)
+- **Zod** (validacao)
+
+## Requisitos
+
+
+- npm ou Bun
+
+## Como Executar o Projeto
+
+### 1. Backend
+
 cd backend
 npm install
 npx prisma migrate dev
 npm run dev
 
-O servidor iniciará  
 
-## Frontend
+O servidor iniciara em `http://localhost:3000`.
+
+### 2. Frontend
+
+
 cd frontend
 npm install
 npm run dev
 
-Acesse em http://localhost:5173
+
+Acesse em `http://localhost:5173`.
+
+### 3. Uploads
+
+Crie a pasta `backend/uploads` manualmente antes de rodar o projeto:
+
+mkdir backend/uploads
+
+
+## Credenciais para Teste
+
+| Perfil       | E-mail                    | Senha     |
+|--------------|---------------------------|-----------|
+| Colaborador  | colaborador@test.com      | pitang123 |
+| Gestor       | gestor@empresa.com        | pitang123 |
+| Financeiro   | financeiro@empresa.com    | pitang123 |
+| Admin        | admin@test.com            | pitang123 |
+
+## Funcionalidades
+
+- **Autenticacao**: Login e cadastro com controle de perfis (RBAC)
+- **Solicitacoes**: Criacao, edicao de rascunhos e upload de comprovantes
+- **Gestao**: Aprovacao/rejeicao com justificativa e marcacao de pagamento
+- **Admin**: Cadastro e inativacao de categorias de despesa
+- **Upload**: Anexo de imagens e PDFs aos reembolsos
 
 ## Testando a API (Postman)
-Incluí na raiz do projeto uma pasta chamada /postman com o arquivo da Collection.
-Como usar:Importe o arquivo postman_collection.json no seu Postman.
 
-Em cada requisição, verifique se a URL está apontando para o seu localhost (ex: http://localhost:3333).
-Para rotas protegidas:Realize o Login.
-Copie o token recebido na resposta.
-Na aba Authorization da requisição desejada, selecione Bearer Token e cole o código.
-Usuários para Teste
-Para facilitar a avaliação, utilize as credenciais abaixo (caso já tenha rodado o seed/cadastro):
-Perfil E-mail Senha 
-Colaboradorcolaborador@test.com pitang123
-Gestor: gestor@empresa.com pitang123
-Financeiro: financeiro@empresa.com pitang123
-Admin: admin@test.com  pitang123
-📂 Funcionalidades ImplementadasAutenticação: Login e Cadastro com perfis de acesso (RBAC).
-Solicitações: Criação de reembolsos, edição de rascunhos e upload de comprovantes.
-Gestão: Aprovação/Rejeição com justificativa e marcação de pagamento.
-Admin: Cadastro e inativação de categorias de despesa.
+Na raiz do projeto existe a pasta `/postman` com a collection do Postman.
 
-## Observações:
-O sistema bloqueia edições em solicitações que não estejam em status de Rascunho.
+1. Importe o arquivo `postman_collection.json` no Postman
+2. Verifique se a URL esta apontando para `http://localhost:3000`
+3. Para rotas protegidas:
+   - Realize o login
+   - Copie o token recebido
+   - Na aba **Authorization**, selecione **Bearer Token** e cole o token
 
-Certifique-se de criar a pasta backend/uploads manualmente antes de rodar o projeto
+## Testes Manuais Executados
+[x] Fluxo de autenticação e expiração de token.
+[x] Bloqueio de rotas baseado no perfil (RBAC).
+[x] Upload de múltiplos formatos (JPG, PNG, PDF).
+[x] Validação de campos obrigatórios com Zod.
+
+
+## Testes
+
+### Backend (Jest - 32 testes passando)
+
+```bash
+cd backend
+npm install
+npx jest
+```
+
+## Observacoes
+
+- O sistema bloqueia edicoes em solicitacoes que nao estejam em status de **Rascunho**
+- Certifique-se de criar a pasta `backend/uploads` antes de iniciar
+- O arquivo `.env` esta no `.gitignore`. Crie `backend/.env` com:
+
+```
+DATABASE_URL="file:./dev.db"
+```
