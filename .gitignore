@@ -10,6 +10,5 @@ backend/uploads/
 # Ignorar pastas de sistema
 node_modules/
 .env
-
-**/dev.db
 *.db
+*.db-journal
