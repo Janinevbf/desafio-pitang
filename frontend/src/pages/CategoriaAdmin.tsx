@@ -53,8 +53,7 @@ export default function CategoriasAdmin() {
             if (editandoId) {
                 const categoriaOriginal = categorias.find(c => c.id === editandoId);
 
-                // Se o nome não mudou, você pode até evitar a chamada se o back for problemático,
-                // mas o ideal é que o back aceite o PUT do mesmo nome se o ID for o mesmo.
+
                 await api.put(`/categorias/${editandoId}`, {
                     nome: nomeLimpo,
                     ativo: categoriaOriginal?.ativo
@@ -71,7 +70,7 @@ export default function CategoriasAdmin() {
             fecharModal();
             carregarCategorias();
         } catch (err: any) {
-            // Trata o erro específico que você recebeu
+
             if (err.response?.data?.error === "Este nome de categoria já está em uso") {
                 toast.error("Você já tem uma categoria com este nome.");
             } else {
@@ -84,18 +83,15 @@ export default function CategoriasAdmin() {
 
     async function toggleStatus(id: string, nome: string, ativoAtual: boolean) {
         try {
-            // Inverte o valor booleano
             const novoStatus = !ativoAtual;
 
             console.log(`Enviando para o Back: { nome: "${nome}", ativo: ${novoStatus} }`);
-
-            // Chamada enviando o campo 'ativo' como booleano
             await api.put(`/categorias/${id}`, {
                 nome: nome,
                 ativo: novoStatus
             });
 
-            // Atualiza o estado local para refletir na tela
+
             setCategorias(prev => prev.map(c =>
                 c.id === id ? { ...c, ativo: novoStatus } : c
             ));
@@ -179,7 +175,6 @@ export default function CategoriasAdmin() {
                                                 {cat.ativo ? "Ativa" : "Inativa"}
                                             </Badge>
                                             <Switch
-                                                // O Switch fica ligado se cat.ativo for true
                                                 checked={cat.ativo}
                                                 onCheckedChange={() => toggleStatus(cat.id, cat.nome, cat.ativo)}
                                             />
