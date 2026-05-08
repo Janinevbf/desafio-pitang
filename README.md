@@ -6,9 +6,13 @@ Backend: Node.js, Prisma ORM, JWT (Autenticação).
 Validação: Zod & React Hook Form.
 
 ## Como Executar Backend
+
 cd backend
+
 npm install
+
 npx prisma migrate dev
+
 npm run dev
 
 O servidor iniciará  
@@ -17,6 +21,7 @@ O servidor iniciará
 
 
 ### Tecnologias Utilizadas
+
 Frontend: React, Tailwind CSS, Shadcn/UI, Lucide React.
 Backend: Node.js, Prisma ORM, JWT (Autenticação).
 Validação: Zod & React Hook Form.
