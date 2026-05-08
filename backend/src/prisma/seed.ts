@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 async function main() {
     const senhaHash = await bcrypt.hash('pitang123', 10);
 
-    // Limpa dados existentes
     await prisma.solicitacao.deleteMany();
     await prisma.anexo.deleteMany();
     await prisma.historico.deleteMany();
@@ -18,7 +17,7 @@ async function main() {
     await prisma.categoria.create({ data: { nome: 'Alimentação' } });
     await prisma.categoria.create({ data: { nome: 'Hospedagem' } });
 
-    // Criando Usuários para cada perfil do desafio
+
     await prisma.user.create({
         data: {
             nome: 'Carlos Colaborador',

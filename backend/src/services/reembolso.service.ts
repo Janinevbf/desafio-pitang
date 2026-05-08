@@ -1,11 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { AppError } from '../errors/AppError'; // Certifique-se de que este arquivo existe
-
+import { AppError } from '../errors/AppError';
 const prisma = new PrismaClient();
 
 export class ReembolsoService {
 
-    // 1. SOLICITAR (Agora inicia em DRAFT conforme Regra 10.1)
+
     async solicitar(userId: string, data: {
         nome: string;
         valor: number;
@@ -14,14 +13,13 @@ export class ReembolsoService {
         anexoUrl?: string;
         dataDespesa: string;
     }) {
-        // Regra 10.1: Valor deve ser maior que zero
         if (data.valor <= 0) throw new AppError("O valor deve ser maior que zero", 400);
 
-        // Regra 10.9: Categoria deve existir e estar ativa
+
         const categoria = await prisma.categoria.findUnique({ where: { id: data.categoriaId } });
         if (!categoria) throw new AppError("Categoria não encontrada", 404);
 
-        // CORREÇÃO AQUI: De 'ativa' para 'ativo'
+
         if (!categoria.ativo) throw new AppError("Esta categoria está inativa", 400);
 
         return await prisma.$transaction(async (tx) => {
@@ -31,7 +29,7 @@ export class ReembolsoService {
                     valor: data.valor,
                     categoriaId: data.categoriaId,
                     solicitanteId: userId,
-                    status: 'DRAFT', // Regra 10.2: Inicia em Rascunho
+                    status: 'DRAFT',
                     dataDespesa: new Date(data.dataDespesa),
                     anexos: data.anexoUrl ? {
                         create: {
@@ -57,15 +55,13 @@ export class ReembolsoService {
         });
     }
 
-    // 2. ENVIAR PARA ANÁLISE (Regra 10.3)
+
     async enviarParaAnalise(id: string, userId: string) {
         const solicitacao = await prisma.solicitacao.findUnique({ where: { id } });
         if (!solicitacao) throw new AppError("Solicitação não encontrada", 404);
 
-        // Regra 10.3: Apenas o dono pode enviar
         if (solicitacao.solicitanteId !== userId) throw new AppError("Acesso negado", 403);
 
-        // Regra 10.3: Apenas RASCUNHO pode ser enviado
         if (solicitacao.status !== 'DRAFT') {
             throw new AppError("Apenas solicitações em rascunho podem ser enviadas", 400);
         }
@@ -89,7 +85,7 @@ export class ReembolsoService {
         });
     }
 
-    // 3. AVALIAR (Regras 10.4 e 10.5)
+
     async assess(id: string, userId: string, userPerfil: string, status: 'APROVADO' | 'REJEITADO', justificativa?: string) {
         if (userPerfil !== 'GESTOR') throw new AppError("Apenas gestores podem avaliar", 403);
 
@@ -126,15 +122,15 @@ export class ReembolsoService {
         });
     }
 
-    // 4. PAGAR (Regra 10.6)
+
     async markAsPaid(solicitacaoId: string, userId: string, userPerfil: string) {
-        // Regra 10.6: Apenas perfil FINANCEIRO pode pagar
+
         if (userPerfil !== 'FINANCEIRO') throw new AppError("Apenas o perfil financeiro pode realizar pagamentos", 403);
 
         const solicitacao = await prisma.solicitacao.findUnique({ where: { id: solicitacaoId } });
         if (!solicitacao) throw new AppError("Solicitação não encontrada", 404);
 
-        // Regra 10.6: Apenas APPROVED podem ser pagas
+
         if (solicitacao.status !== 'APPROVED') {
             throw new AppError("Apenas solicitações aprovadas podem ser pagas", 400);
         }
@@ -159,7 +155,7 @@ export class ReembolsoService {
         });
     }
 
-    // 5. CANCELAR (Regra implementada RASCUNHO -> CANCELADO, ENVIADO -> CANCELADO)
+
     async cancelar(id: string, userId: string) {
         const solicitacao = await prisma.solicitacao.findUnique({ where: { id } });
         if (!solicitacao) throw new AppError("Solicitação não encontrada", 404);
@@ -197,7 +193,7 @@ export class ReembolsoService {
         valor?: number;
         categoriaId?: string;
         descricao?: string;
-        anexoUrl?: string; // Campo para o anexo
+        anexoUrl?: string;
         dataDespesa?: string;
     }) {
         const solicitacao = await prisma.solicitacao.findUnique({
@@ -218,7 +214,7 @@ export class ReembolsoService {
             throw new AppError("Apenas reembolsos em rascunho podem ser editados", 400);
         }
 
-        // Validações de categoria e valor (mantidas as que você já tinha)
+
         if (data.valor !== undefined && data.valor <= 0) throw new AppError("Valor inválido", 400);
 
         const updateData: any = {};
@@ -228,7 +224,7 @@ export class ReembolsoService {
         if (data.dataDespesa) updateData.dataDespesa = new Date(data.dataDespesa);
 
         return await prisma.$transaction(async (tx) => {
-            // Se houver um novo anexoUrl, criamos o anexo
+
             if (data.anexoUrl) {
                 await tx.anexo.create({
                     data: {
@@ -257,7 +253,7 @@ export class ReembolsoService {
             return atualizada;
         });
     }
-    // 7. LISTAR
+
     async listByUser(userId: string, perfil: string) {
         const filter = perfil === 'COLABORADOR' ? { solicitanteId: userId } : {};
 
@@ -268,7 +264,6 @@ export class ReembolsoService {
         });
     }
 
-    // 6. HISTÓRICO (Regra 10.11)
     async getHistory(solicitacaoId: string) {
         const historico = await prisma.historico.findMany({
             where: { solicitacaoId },
@@ -282,7 +277,7 @@ export class ReembolsoService {
         return historico;
     }
 
-    // 7. LISTAR ANEXOS
+
     async getAnexos(solicitacaoId: string) {
         const solicitacao = await prisma.solicitacao.findUnique({ where: { id: solicitacaoId } });
         if (!solicitacao) throw new AppError("Solicitação não encontrada", 404);
@@ -293,7 +288,7 @@ export class ReembolsoService {
         });
     }
 
-    // 8. DETALHAR SOLICITAÇÃO
+
     async detalhar(id: string, userId: string, userPerfil: string) {
         const solicitacao = await prisma.solicitacao.findUnique({
             where: { id },
@@ -310,7 +305,6 @@ export class ReembolsoService {
 
         if (!solicitacao) throw new AppError("Solicitação não encontrada", 404);
 
-        // Apenas o solicitante, GESTOR, FINANCEIRO ou ADMIN podem ver
         const podeVisualizar = solicitacao.solicitanteId === userId ||
             ['GESTOR', 'FINANCEIRO', 'ADMIN'].includes(userPerfil);
 

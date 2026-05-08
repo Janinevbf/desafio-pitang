@@ -15,9 +15,9 @@ export const editarUsuarioSchema = z.object({
 });
 
 export const criarReembolsoSchema = z.object({
-    descricao: z.string().min(3, "Descrição é obrigatória"), // Mude de 'nome' para 'descricao'
+    descricao: z.string().min(3, "Descrição é obrigatória"),
     valor: z.number().positive("O valor deve ser positivo"),
-    dataDespesa: z.string(), // Ou z.date() dependendo da sua config
+    dataDespesa: z.string(),
     categoriaId: z.string().uuid("Categoria inválida"),
 });
 

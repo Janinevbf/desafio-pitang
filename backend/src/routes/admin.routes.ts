@@ -8,17 +8,14 @@ const adminRoutes = Router();
 const usuarioController = new UsuarioController();
 const prisma = new PrismaClient();
 
-// Todas as rotas abaixo exigem autenticação e perfil ADMIN
 adminRoutes.use(authMiddleware, authorize(['ADMIN']));
 
-// Gestão de Usuários (CRUD Completo)
 adminRoutes.get('/usuarios', (req, res) => usuarioController.listar(req, res));
 adminRoutes.get('/usuarios/:id', (req, res) => usuarioController.buscarPorId(req, res));
 adminRoutes.post('/usuarios', (req, res) => usuarioController.criar(req, res));
 adminRoutes.put('/usuarios/:id', (req, res) => usuarioController.editar(req, res));
 adminRoutes.delete('/usuarios/:id', (req, res) => usuarioController.deletar(req, res));
 
-// Dashboard Geral do Sistema (Apenas ADMIN)
 adminRoutes.get('/dashboard', async (req, res) => {
     try {
         const totalSolicitacoes = await prisma.solicitacao.count();

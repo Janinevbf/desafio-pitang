@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enums para garantir a integridade dos dados
 enum Role {
   COLABORADOR
   GESTOR
@@ -40,8 +39,8 @@ model User {
   email        String        @unique
   senha        String
   perfil       Role          @default(COLABORADOR)
-  solicitacoes Solicitacao[] // Um usuário pode ter várias solicitações
-  historicos   Historico[] // Ações que este usuário realizou
+  solicitacoes Solicitacao[]
+  historicos   Historico[]
   criadoEm     DateTime      @default(now())
   atualizadoEm DateTime      @updatedAt
 }
@@ -59,11 +58,10 @@ model Solicitacao {
   id                    String   @id @default(uuid())
   status                String   @default("SUBMITTED")
   descricao             String
-  valor                 Decimal // Decimal é melhor que Float para dinheiro
+  valor                 Decimal
   dataDespesa           DateTime
-  justificativaRejeicao String? // Opcional, preenchido no status REJEITADO
+  justificativaRejeicao String?
 
-  // Relacionamentos
   solicitante   User      @relation(fields: [solicitanteId], references: [id])
   solicitanteId String
   categoria     Categoria @relation(fields: [categoriaId], references: [id])
@@ -80,7 +78,7 @@ model Anexo {
   id            String      @id @default(uuid())
   nomeArquivo   String
   urlArquivo    String
-  tipoArquivo   String // Ex: image/jpeg, application/pdf
+  tipoArquivo   String
   solicitacao   Solicitacao @relation(fields: [solicitacaoId], references: [id])
   solicitacaoId String
   criadoEm      DateTime    @default(now())
@@ -90,7 +88,7 @@ model Historico {
   id            String   @id @default(uuid())
   solicitacaoId String
   usuarioId     String
-  acao          Action // Agora usando o Enum Action em inglês
+  acao          Action
   observacao    String
   criadoEm      DateTime @default(now())
 

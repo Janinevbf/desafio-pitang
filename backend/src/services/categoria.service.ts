@@ -17,19 +17,19 @@ export class CategoriaService {
         return await prisma.categoria.create({
             data: {
                 nome: data.nome,
-                ativo: data.ativo ?? true, // Garante que nasce ativa se não enviado
+                ativo: data.ativo ?? true,
             },
         });
     }
 
     async findAll() {
-        // Admin vê tudo, mas ordenado para facilitar a gestão
+
         return await prisma.categoria.findMany({
             orderBy: { nome: 'asc' },
         });
     }
 
-    // Método adicional útil para o Dropdown do Colaborador
+
     async findAtivas() {
         return await prisma.categoria.findMany({
             where: { ativo: true },
@@ -82,7 +82,6 @@ export class CategoriaService {
             throw new AppError('Categoria não encontrada', 404);
         }
 
-        // Bloqueio de exclusão se houver qualquer vínculo histórico
         if (existing._count.solicitacoes > 0) {
             throw new AppError(
                 'Não é possível excluir. Inative a categoria para que ela não apareça em novos reembolsos.',

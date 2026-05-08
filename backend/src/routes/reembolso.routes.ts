@@ -13,7 +13,6 @@ import path from 'path';
 dayjs.locale('pt-br');
 
 
-// Configura onde e com qual nome o arquivo será salvo
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
@@ -30,16 +29,15 @@ const reembolsoRoutes = Router();
 const service = new ReembolsoService();
 const prisma = new PrismaClient();
 
-// Rota para ver as categorias (Auxiliar)
+
 reembolsoRoutes.get('/categorias', authMiddleware, async (req, res) => {
     const categorias = await prisma.categoria.findMany();
     return res.json(categorias);
 });
 
-// Criar Reembolso (Com Validação Zod e Histórico)
+
 reembolsoRoutes.post('/', authMiddleware, async (req, res) => {
     try {
-        // Validação obrigatória com Zod
         const dadosValidados = criarReembolsoSchema.parse(req.body);
 
         const result = await service.solicitar(req.user!.id, dadosValidados);
@@ -59,7 +57,6 @@ reembolsoRoutes.post('/', authMiddleware, async (req, res) => {
 });
 
 
-// Editar Reembolso (Apenas Rascunho)
 reembolsoRoutes.put('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
@@ -67,7 +64,7 @@ reembolsoRoutes.put('/:id', authMiddleware, async (req, res) => {
         const resultado = await service.editar(
             id as string,
             req.user!.id,
-            req.user!.perfil, // <-- Passe o perfil aqui
+            req.user!.perfil,
             dadosValidados
         );
         return res.json({ message: "Reembolso atualizado com sucesso!", resultado });
@@ -85,7 +82,7 @@ reembolsoRoutes.put('/:id', authMiddleware, async (req, res) => {
     }
 });
 
-// Listagem do próprio colaborador
+
 reembolsoRoutes.get('/meus-reembolsos', authMiddleware, async (req, res) => {
     try {
         const solicitacoes = await service.listByUser(req.user!.id, req.user!.perfil);
@@ -95,7 +92,7 @@ reembolsoRoutes.get('/meus-reembolsos', authMiddleware, async (req, res) => {
     }
 });
 
-// Listagem de pendentes (Apenas Gestor)
+
 reembolsoRoutes.get('/pendentes', authMiddleware, authorize(['GESTOR']), async (req, res) => {
     const pendentes = await prisma.solicitacao.findMany({
         where: { status: 'SUBMITTED' },
@@ -104,7 +101,6 @@ reembolsoRoutes.get('/pendentes', authMiddleware, authorize(['GESTOR']), async (
     return res.json(pendentes);
 });
 
-// Listagem de aprovadas (Apenas Financeiro)
 reembolsoRoutes.get('/aprovados', authMiddleware, authorize(['FINANCEIRO']), async (req, res) => {
     const aprovados = await prisma.solicitacao.findMany({
         where: { status: 'APPROVED' },
@@ -114,7 +110,7 @@ reembolsoRoutes.get('/aprovados', authMiddleware, authorize(['FINANCEIRO']), asy
     return res.json(aprovados);
 });
 
-// Rejeitar Solicitação (Apenas Gestor) - POST específico
+
 reembolsoRoutes.post('/:id/rejeitar', authMiddleware, authorize(['GESTOR']), async (req, res) => {
     try {
         const { id } = req.params;
@@ -131,19 +127,19 @@ reembolsoRoutes.post('/:id/rejeitar', authMiddleware, authorize(['GESTOR']), asy
     }
 });
 
-// Enviar para análise
+
 reembolsoRoutes.post('/:id/enviar', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const result = await service.enviarParaAnalise(id as string, req.user!.id);
         return res.json(result);
     } catch (error: any) {
-        // Trata AppError e outros erros
+
         return res.status(error.statusCode || 400).json({ error: error.message });
     }
 });
 
-// Rejeitar Solicitação (Apenas Gestor) - POST específico
+
 reembolsoRoutes.post('/:id/rejeitar', authMiddleware, authorize(['GESTOR']), async (req, res) => {
     try {
         const { id } = req.params;
@@ -160,13 +156,13 @@ reembolsoRoutes.post('/:id/rejeitar', authMiddleware, authorize(['GESTOR']), asy
     }
 });
 
-// Aprovar ou Rejeitar (Apenas Gestor)
+
 reembolsoRoutes.patch('/:id/avaliar', authMiddleware, authorize(['GESTOR']), async (req, res) => {
     try {
         const { id } = req.params;
         const { status, justificativa } = avaliarReembolsoSchema.parse(req.body);
 
-        // Importante: Passamos o ID do usuário logado para o Histórico
+
         const resultado = await service.assess(id as string, req.user!.id, req.user!.perfil, status, justificativa);
         return res.json({ message: `Solicitação ${status} com sucesso!`, resultado });
     } catch (error: any) {
@@ -183,7 +179,7 @@ reembolsoRoutes.patch('/:id/avaliar', authMiddleware, authorize(['GESTOR']), asy
     }
 });
 
-// Marcar como PAGO (Apenas Financeiro)
+
 reembolsoRoutes.patch('/:id/pagar', authMiddleware, authorize(['FINANCEIRO', 'GESTOR']), async (req, res) => {
     try {
         const { id } = req.params;
@@ -194,7 +190,6 @@ reembolsoRoutes.patch('/:id/pagar', authMiddleware, authorize(['FINANCEIRO', 'GE
     }
 });
 
-// Cancelar Reembolso (Rascunho ou Enviado)
 reembolsoRoutes.patch('/:id/cancelar', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
@@ -205,7 +200,6 @@ reembolsoRoutes.patch('/:id/cancelar', authMiddleware, async (req, res) => {
     }
 });
 
-// Detalhar Solicitação Específica
 reembolsoRoutes.get('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
@@ -216,7 +210,7 @@ reembolsoRoutes.get('/:id', authMiddleware, async (req, res) => {
     }
 });
 
-// Histórico da Solicitação (Manipulação de data com DayJs)
+
 reembolsoRoutes.get('/:id/historico', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
@@ -233,7 +227,7 @@ reembolsoRoutes.get('/:id/historico', authMiddleware, async (req, res) => {
     }
 });
 
-// Listar Anexos da Solicitação
+
 reembolsoRoutes.get('/:id/anexos', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;

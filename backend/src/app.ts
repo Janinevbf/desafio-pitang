@@ -20,7 +20,6 @@ app.use('/reembolsos', reembolsoRoutes);
 app.use('/categorias', categoriaRoutes);
 app.use('/admin', adminRoutes);
 
-// Middleware de erro global (deve vir DEPOIS das rotas)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({
@@ -29,7 +28,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         });
     }
 
-    // Log para depuração interna
+
     console.error(' [SERVER ERROR]:', err);
 
     const message = err instanceof Error ? err.message : 'Internal server error';
