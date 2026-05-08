@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
 
-    async function signIn({ email, senha }): Promise<void> {
+    async function signIn({ email, senha }: { email: string; senha: string }): Promise<void> {
         const response = await api.post("auth/login", { email, senha });
         const { token, user } = response.data;
 

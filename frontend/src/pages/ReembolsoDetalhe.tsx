@@ -4,7 +4,7 @@ import api from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/bagde";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Send, Paperclip, CheckCircle, XCircle, LogOut } from "lucide-react";
 
 export default function ReembolsoDetalhe() {

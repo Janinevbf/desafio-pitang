@@ -3,15 +3,16 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "./frontend/src/*"
       ]
-    }
-  },
-  "module": "ESNext",
-  "moduleResolution": "bundler",
-  "allowImportingTsExtensions": true,
-  "noEmit": true,
-  "strict": true,
-  "esModuleInterop": true,
-  "skipLibCheck": true
+    },
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx"
+  }
 }

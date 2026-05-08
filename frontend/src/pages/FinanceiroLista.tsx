@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "@/services/api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/bagde";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { DollarSign, Eye } from "lucide-react";
 

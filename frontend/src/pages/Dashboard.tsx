@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "../components/ui/table";
-import { Badge } from "@/components/ui/bagde"; // Corrigido: era "bagde"
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
