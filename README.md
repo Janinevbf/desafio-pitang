@@ -92,18 +92,30 @@ Como usar:Importe o arquivo postman_collection.json no seu Postman.
 
 Em cada requisição, verifique se a URL está apontando para o seu localhost (ex: http://localhost:3333).
 Para rotas protegidas:Realize o Login.
+
 Copie o token recebido na resposta.
+
 Na aba Authorization da requisição desejada, selecione Bearer Token e cole o código.
+
 Usuários para Teste
+
 Para facilitar a avaliação, utilize as credenciais abaixo (caso já tenha rodado o seed/cadastro):
+
 Perfil E-mail Senha 
+
 Colaboradorcolaborador@test.com pitang123
-Gestor: gestor@empresa.com pitang123
-Financeiro: financeiro@empresa.com pitang123
+Gestor: gestor@test.com pitang123
+Financeiro: financeiro@test.com pitang123
 Admin: admin@test.com  pitang123
-📂 Funcionalidades ImplementadasAutenticação: Login e Cadastro com perfis de acesso (RBAC).
+
+📂 Funcionalidades
+
+ImplementadasAutenticação: Login e Cadastro com perfis de acesso (RBAC).
+
 Solicitações: Criação de reembolsos, edição de rascunhos e upload de comprovantes.
+
 Gestão: Aprovação/Rejeição com justificativa e marcação de pagamento.
+
 Admin: Cadastro e inativação de categorias de despesa.
 
 ## Observações:
