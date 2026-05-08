@@ -36,9 +36,14 @@ reembolsoRoutes.get('/categorias', authMiddleware, async (req, res) => {
 });
 
 
-reembolsoRoutes.post('/', authMiddleware, async (req, res) => {
+reembolsoRoutes.post('/', authMiddleware, upload.single('file'), async (req, res) => {
     try {
         const dadosValidados = criarReembolsoSchema.parse(req.body);
+
+        const file = req.file;
+        if (file) {
+            dadosValidados.anexoUrl = file.path;
+        }
 
         const result = await service.solicitar(req.user!.id, dadosValidados);
         return res.status(201).json(result);
@@ -108,23 +113,6 @@ reembolsoRoutes.get('/aprovados', authMiddleware, authorize(['FINANCEIRO']), asy
         orderBy: { criadoEm: 'desc' }
     });
     return res.json(aprovados);
-});
-
-
-reembolsoRoutes.post('/:id/rejeitar', authMiddleware, authorize(['GESTOR']), async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { justificativa } = req.body;
-
-        if (!justificativa) {
-            return res.status(400).json({ error: "Justificativa de rejeição é obrigatória" });
-        }
-
-        const resultado = await service.assess(id as string, req.user!.id, req.user!.perfil, 'REJEITADO', justificativa);
-        return res.json({ message: "Solicitação rejeitada com sucesso!", resultado });
-    } catch (error: any) {
-        return res.status(error.statusCode || 400).json({ error: error.message });
-    }
 });
 
 
@@ -238,7 +226,7 @@ reembolsoRoutes.get('/:id/anexos', authMiddleware, async (req, res) => {
     }
 });
 
-reembolsoRoutes.post('/:id/anexos', authMiddleware, upload.single('arquivo'), async (req, res) => {
+reembolsoRoutes.post('/:id/anexos', authMiddleware, upload.single('file'), async (req, res) => {
     try {
         const { id } = req.params as { id: string };
         const file = req.file;
@@ -259,14 +247,6 @@ reembolsoRoutes.post('/:id/anexos', authMiddleware, upload.single('arquivo'), as
         return res.status(201).json(anexo);
 
     } catch (error) {
-
-        console.error("[ReembolsoAnexoError]:", {
-            requestId: req.id,
-            solicitacaoId: req.params.id,
-            error: error instanceof Error ? error.message : "Erro desconhecido"
-        });
-
-
         return res.status(500).json({
             message: error instanceof Error ? error.message : "Erro desconhecido"
         });

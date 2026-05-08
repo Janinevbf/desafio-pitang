@@ -130,12 +130,13 @@ describe('Fluxo Completo de Reembolso', () => {
             expect(res.body.error).toContain('inativa');
         });
 
-        it('Deve deletar categoria como ADMIN', async () => {
+        it('Deve inativar categoria como ADMIN', async () => {
             const res = await request(app)
-                .delete(`/categorias/${novaCategoriaId}`)
+                .patch(`/categorias/${novaCategoriaId}/inativar`)
                 .set('Authorization', `Bearer ${tokenAdmin}`);
 
-            expect(res.status).toBe(204);
+            expect(res.status).toBe(200);
+            expect(res.body.ativo).toBe(false);
         });
     });
 

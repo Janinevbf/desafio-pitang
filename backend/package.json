@@ -1,8 +1,13 @@
 {
   "dependencies": {
-    "multer": "^2.1.1"
+    "@prisma/client": "6",
+    "dotenv": "^17.4.2",
+    "multer": "^2.1.1",
+    "prisma": "6"
   },
   "devDependencies": {
-    "@types/multer": "^2.1.0"
+    "@types/jest": "^30.0.0",
+    "@types/multer": "^2.1.0",
+    "tsx": "^4.21.0"
   }
 }

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import multer from 'multer';
 
 export default function NovaSolicitacao() {
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function NovaSolicitacao() {
     const [valor, setValor] = useState("");
     const [categoriaId, setCategoriaId] = useState("");
     const [dataDespesa, setDataDespesa] = useState("");
-
+    const upload = multer();
 
     useEffect(() => {
         api.get("/categorias")

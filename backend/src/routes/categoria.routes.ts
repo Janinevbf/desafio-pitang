@@ -14,6 +14,6 @@ categoriaRoutes.post('/', authMiddleware, authorize(['ADMIN']), (req, res) => ca
 
 categoriaRoutes.put('/:id', authMiddleware, authorize(['ADMIN']), (req, res) => categoriaController.update(req, res));
 
-categoriaRoutes.delete('/:id', authMiddleware, authorize(['ADMIN']), (req, res) => categoriaController.delete(req, res));
+categoriaRoutes.patch('/:id/inativar', authMiddleware, authorize(['ADMIN']), (req, res) => categoriaController.inactivate(req, res));
 
 export { categoriaRoutes };

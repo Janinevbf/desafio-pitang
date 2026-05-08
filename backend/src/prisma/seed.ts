@@ -1,15 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { hash } from 'node:crypto';
+
 
 const prisma = new PrismaClient();
 
 async function main() {
     const senhaHash = await bcrypt.hash('pitang123', 10);
 
-    await prisma.solicitacao.deleteMany();
-    await prisma.anexo.deleteMany();
     await prisma.historico.deleteMany();
+    await prisma.anexo.deleteMany();
+    await prisma.solicitacao.deleteMany();
     await prisma.user.deleteMany();
     await prisma.categoria.deleteMany();
 

@@ -72,23 +72,16 @@ export class CategoriaService {
         });
     }
 
-    async delete(id: string) {
-        const existing = await prisma.categoria.findUnique({
-            where: { id },
-            include: { _count: { select: { solicitacoes: true } } },
-        });
+    async inactivate(id: string) {
+        const existing = await prisma.categoria.findUnique({ where: { id } });
 
         if (!existing) {
             throw new AppError('Categoria não encontrada', 404);
         }
 
-        if (existing._count.solicitacoes > 0) {
-            throw new AppError(
-                'Não é possível excluir. Inative a categoria para que ela não apareça em novos reembolsos.',
-                409
-            );
-        }
-
-        await prisma.categoria.delete({ where: { id } });
+        return await prisma.categoria.update({
+            where: { id },
+            data: { ativo: false },
+        });
     }
 }

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { TextArea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2, PlusCircle, Save, LogOut } from "lucide-react";
+import { ArrowLeft, Loader2, Save, LogOut, PlusCircle, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ReembolsoForm() {
@@ -21,6 +21,7 @@ export default function ReembolsoForm() {
     const [categorias, setCategorias] = useState<any[]>([]);
     const isEdit = Boolean(id);
     const { signOut } = useAuth();
+    const [arquivo, setArquivo] = useState<File | null>(null);
 
     const handleLogout = () => {
         signOut();
@@ -43,25 +44,22 @@ export default function ReembolsoForm() {
                 setLoading(true);
 
                 const resCat = await api.get("/categorias");
-                const cats = resCat.data.filter((c: any) => c.ativo || isEdit);
-                setCategorias(cats);
-
-                if (!isEdit && cats.length > 0) {
-                    const primeiraAtiva = cats.find((c: any) => c.ativo);
-                    if (primeiraAtiva) {
-                        setValue("categoriaId", primeiraAtiva.id);
-                    }
-                }
+                const allCategories = resCat.data;
 
                 if (isEdit) {
                     const resReembolso = await api.get(`/reembolsos/${id}`);
                     const data = resReembolso.data;
 
-
                     if (data.status !== 'DRAFT') {
                         toast.error("Apenas rascunhos podem ser editados!");
                         return navigate("/dashboard");
                     }
+
+                    // AJUSTE AQUI: Filtra por c.ativo (booleano)
+                    const catsParaEdicao = allCategories.filter((c: any) =>
+                        c.ativo === true || c.id === data.categoriaId
+                    );
+                    setCategorias(catsParaEdicao);
 
                     reset({
                         descricao: data.descricao,
@@ -69,7 +67,12 @@ export default function ReembolsoForm() {
                         dataDespesa: data.dataDespesa.split('T')[0],
                         categoriaId: data.categoriaId
                     });
+                } else {
+                    // AJUSTE AQUI: Filtra por c.ativo === true
+                    const apenasAtivas = allCategories.filter((c: any) => c.ativo === true);
+                    setCategorias(apenasAtivas);
                 }
+
             } catch (err) {
                 toast.error("Erro ao carregar dados.");
             } finally {
@@ -77,34 +80,46 @@ export default function ReembolsoForm() {
             }
         }
         fetchData();
-    }, [id, reset, navigate, isEdit]);
+    }, [id, isEdit, reset, navigate]);
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (values: any) => {
         try {
             setLoading(true);
-            if (isEdit) {
-                await api.put(`/reembolsos/${id}`, data);
-                toast.success("Solicitação atualizada!");
-            } else {
-                await api.post("/reembolsos", data);
-                toast.success("Solicitação criada como rascunho!");
+
+            const formData = new FormData();
+
+            // Verifique se o seu backend espera os dados soltos ou dentro de um objeto
+            // Tentaremos o padrão "solto" que é o mais comum para Multer:
+            formData.append("descricao", values.descricao);
+            formData.append("valor", String(values.valor));
+            formData.append("dataDespesa", values.dataDespesa);
+            formData.append("categoriaId", values.categoriaId);
+
+            if (arquivo) {
+                // MUITO IMPORTANTE: Tente 'file' ou 'anexo'
+                // Se o erro persistir, mude para o nome que está no seu schema do Zod no BACKEND
+                formData.append("file", arquivo);
             }
+
+            // Deixe o Axios configurar os headers automaticamente
+            await api.post("/reembolsos", formData);
+
+            toast.success("Solicitação criada!");
             navigate("/dashboard");
         } catch (err: any) {
-            toast.error(err.response?.data?.error || "Erro ao salvar.");
+            console.error("ERRO:", err.response?.data);
+            toast.error("Erro de validação. Verifique os campos.");
         } finally {
             setLoading(false);
         }
     };
-
-    if (loading && isEdit) return <div className="flex justify-center p-10"><Loader2 className="animate-spin" /></div>;
 
     return (
         <div className="p-8 max-w-2xl mx-auto min-h-screen bg-slate-50">
             <div className="flex justify-between items-center mb-4">
                 <Button
                     variant="ghost"
-                    className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-colors"
+                    className="text-gray-600 hover:text-orange-600 transition-colors"
                     onClick={() => navigate("/dashboard")}
                 >
                     <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
@@ -112,9 +127,9 @@ export default function ReembolsoForm() {
                 <Button
                     variant="ghost"
                     onClick={handleLogout}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-500 hover:text-red-700"
                 >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut className="h-4 w-4 mr-2" /> Sair
                 </Button>
             </div>
 
@@ -125,105 +140,120 @@ export default function ReembolsoForm() {
                             <PlusCircle className="h-6 w-6 text-orange-600" />
                         </div>
                         <CardTitle className="text-2xl font-bold text-gray-800">
-                            {isEdit ? "Editar Solicitação" : "Nova Solicitação de Reembolso"}
+                            {isEdit ? "Editar Solicitação" : "Nova Solicitação"}
                         </CardTitle>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                        Preencha os detalhes da despesa para processar o seu reembolso.
-                    </p>
                 </CardHeader>
 
                 <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
-                        <div className="space-y-2">
-                            <Label htmlFor="descricao" className="font-semibold text-gray-700">Descrição da Despesa</Label>
-                            <TextArea
-                                id="descricao"
-                                placeholder="Ex: Almoço com cliente X durante evento em SP..."
-                                className="focus:ring-orange-500 border-gray-300"
-                                {...register("descricao")}
-                                error={errors.descricao?.message}
-                            />
+                    {loading && isEdit ? (
+                        <div className="flex justify-center py-10">
+                            <Loader2 className="animate-spin text-orange-500 h-8 w-8" />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+                    ) : (
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="valor" className="font-semibold text-gray-700">Valor (R$)</Label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-gray-500 text-sm">R$</span>
+                                <Label htmlFor="descricao">Descrição</Label>
+                                <TextArea
+                                    id="descricao"
+                                    placeholder="Ex: Almoço com cliente..."
+                                    className="focus:ring-orange-500"
+                                    {...register("descricao")}
+                                />
+                                {errors.descricao && <span className="text-xs text-red-500">{errors.descricao.message as string}</span>}
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="valor">Valor (R$)</Label>
                                     <Input
                                         id="valor"
                                         type="number"
                                         step="0.01"
-                                        placeholder="0,00"
-                                        className="pl-9 focus:ring-orange-500 border-gray-300"
                                         {...register("valor", { valueAsNumber: true })}
                                     />
+                                    {errors.valor && <span className="text-xs text-red-500">{errors.valor.message as string}</span>}
                                 </div>
-                                {errors.valor && <span className="text-xs text-red-500 font-medium">{errors.valor.message}</span>}
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="dataDespesa">Data</Label>
+                                    <Input
+                                        id="dataDespesa"
+                                        type="date"
+                                        {...register("dataDespesa")}
+                                    />
+                                    {errors.dataDespesa && <span className="text-xs text-red-500">{errors.dataDespesa.message as string}</span>}
+                                </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="dataDespesa" className="font-semibold text-gray-700">Data da Despesa</Label>
-                                <Input
-                                    id="dataDespesa"
-                                    type="date"
-                                    className="focus:ring-orange-500 border-gray-300 text-gray-700"
-                                    {...register("dataDespesa")}
-                                />
-                                {errors.dataDespesa && <span className="text-xs text-red-500 font-medium">{errors.dataDespesa.message}</span>}
-                            </div>
-                        </div>
+                                <Label>Categoria</Label>
+                                <Select
+                                    value={watch("categoriaId")}
+                                    onValueChange={(value: string) => setValue("categoriaId", value)}
+                                >
 
-                        <div className="space-y-2">
-                            <Label className="font-semibold text-gray-700">Categoria</Label>
-                            <Select
-                                value={watch("categoriaId")}
-                                onValueChange={(value: string) => setValue("categoriaId", value)}
-                            >
-                                <SelectTrigger className="focus:ring-orange-500 border-gray-300">
-                                    <SelectValue placeholder="Selecione a categoria da despesa" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {categorias.map((cat) => (
-                                        <SelectItem
-                                            key={cat.id}
-                                            value={cat.id}
-                                            disabled={!cat.ativo}
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione a categoria" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {categorias.length === 0 && (
+                                            <div className="p-2 text-sm text-center text-muted-foreground">Nenhuma categoria ativa</div>
+                                        )}
+                                        {categorias.map((cat) => (
+                                            <SelectItem
+                                                key={cat.id}
+                                                value={cat.id}
+                                                disabled={!cat.ativo && !isEdit} // Desabilita se inativa, exceto se já estiver salva
+                                            >
+                                                {cat.nome} {!cat.ativo && "(Inativa)"}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <div className="space-y-2">
+                                    <Label className="font-semibold">Comprovante (Imagem ou PDF)</Label>
+                                    <div
+                                        className={`border-2 border-dashed rounded-lg p-4 transition-colors ${arquivo ? "border-green-500 bg-green-50" : "border-gray-300 hover:bg-slate-100"
+                                            }`}
+                                    >
+                                        <input
+                                            type="file"
+                                            id="file-upload"
+                                            className="hidden"
+                                            accept=".png,.jpg,.jpeg,.pdf"
+                                            onChange={(e) => {
+                                                if (e.target.files?.[0]) setArquivo(e.target.files[0]);
+                                            }}
+                                        />
+                                        <label
+                                            htmlFor="file-upload"
+                                            className="flex flex-col items-center cursor-pointer gap-2"
                                         >
-                                            {cat.ativo ? cat.nome : `${cat.nome} (Indisponível)`}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.categoriaId && <span className="text-xs text-red-500 font-medium">{errors.categoriaId.message}</span>}
-                        </div>
+                                            <Paperclip className={`h-6 w-6 ${arquivo ? "text-green-600" : "text-slate-400"}`} />
+                                            <span className="text-sm font-medium text-slate-600">
+                                                {arquivo ? arquivo.name : "Clique para anexar o recibo"}
+                                            </span>
+                                            {arquivo && (
+                                                <span className="text-xs text-green-600">Arquivo pronto para envio</span>
+                                            )}
+                                        </label>
+                                    </div>
+                                </div>
+                                {errors.categoriaId && <span className="text-xs text-red-500">{errors.categoriaId.message as string}</span>}
+                            </div>
 
-                        <div className="pt-6 flex justify-end gap-3 border-t border-gray-100">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="border-gray-300 hover:bg-gray-50 text-gray-600"
-                                onClick={() => navigate("/dashboard")}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className="bg-orange-500 hover:bg-orange-600 text-white shadow-md transition-all px-8"
-                            >
-                                {loading ? (
-                                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                                ) : (
-                                    <Save className="mr-2 h-4 w-4" />
-                                )}
-                                {isEdit ? "Salvar Alterações" : "Salvar Solicitação"}
-                            </Button>
-                        </div>
-                    </form>
+                            <div className="pt-6 flex justify-end gap-3 border-t">
+                                <Button type="button" variant="outline" onClick={() => navigate("/dashboard")}>
+                                    Cancelar
+                                </Button>
+                                <Button type="submit" disabled={loading} className="bg-orange-500 hover:bg-orange-600">
+                                    {loading ? <Loader2 className="animate-spin h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
+                                    {isEdit ? "Salvar Alterações" : "Salvar Solicitação"}
+                                </Button>
+                            </div>
+                        </form>
+                    )}
                 </CardContent>
             </Card>
         </div>

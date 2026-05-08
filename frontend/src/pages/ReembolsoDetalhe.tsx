@@ -272,7 +272,9 @@ export default function ReembolsoDetalhe() {
                                                     {h.acao}
                                                 </span>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {new Date(h.createdAt).toLocaleString('pt-BR')}
+                                                    {h.criadoEm
+                                                        ? new Date(h.criadoEm).toLocaleString('pt-BR')
+                                                        : "Data pendente"}
                                                 </span>
                                             </div>
                                             <p className="text-sm text-slate-600">
@@ -291,7 +293,7 @@ export default function ReembolsoDetalhe() {
                             )}
                             <div className="mt-10 border-t pt-6">
                                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                    <Paperclip className="h-5 w-5" /> Trilha de Auditoria
+                                    <Paperclip className="h-5 w-5" /> Historico
                                 </h3>
 
                                 <div className="space-y-4">

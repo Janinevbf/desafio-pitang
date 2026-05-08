@@ -70,17 +70,14 @@ export class CategoriaController {
         }
     }
 
-    async delete(req: Request, res: Response) {
+    async inactivate(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            await categoriaService.delete(id as string);
-            return res.status(204).send();
+            const categoria = await categoriaService.inactivate(id as string);
+            return res.json(categoria);
         } catch (error: any) {
             if (error.message && error.message.includes('não encontrada')) {
                 return res.status(404).json({ error: error.message });
-            }
-            if (error.message && error.message.includes('vinculada')) {
-                return res.status(409).json({ error: error.message });
             }
             return res.status(400).json({ error: error.message });
         }
