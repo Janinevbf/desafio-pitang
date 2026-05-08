@@ -11,7 +11,7 @@ export function FinanceiroLista() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // A rota correta conforme seu reembolso.routes.ts
+
         api.get("/reembolsos/aprovados")
             .then(res => {
                 console.log("Dados do financeiro:", res.data);
@@ -19,7 +19,7 @@ export function FinanceiroLista() {
             })
             .catch(err => {
                 console.error("Erro ao carregar aprovados:", err);
-                // Se der erro 403, é porque o perfil no LocalStorage não é 'FINANCEIRO'
+
             });
     }, []);
 
@@ -58,7 +58,7 @@ export function FinanceiroLista() {
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        onClick={() => navigate(`/reembolsos/${item.id}`)} // Sem a palavra 'detalhe'
+                                        onClick={() => navigate(`/reembolsos/${item.id}`)}
                                     >
                                         <Eye className="h-4 w-4" />
                                     </Button>

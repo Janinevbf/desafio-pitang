@@ -18,11 +18,10 @@ export default function NovaSolicitacao() {
     const [categoriaId, setCategoriaId] = useState("");
     const [dataDespesa, setDataDespesa] = useState("");
 
-    // Carregar categorias ativas ao montar o componente
+
     useEffect(() => {
         api.get("/categorias")
             .then(res => {
-                // Filtra apenas categorias ativas para o dropdown
                 const ativas = res.data.filter((c: any) => c.ativo);
                 setCategorias(ativas);
             })
@@ -32,18 +31,17 @@ export default function NovaSolicitacao() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        // --- VALIDAÇÕES DE FRONTEND ---
 
-        // 1. Bloquear Valor <= 0
+
         const valorNumerico = parseFloat(valor);
         if (isNaN(valorNumerico) || valorNumerico <= 0) {
             alert("O valor deve ser maior que zero.");
             return;
         }
 
-        // 2. Bloquear Datas Futuras
+
         const hoje = new Date();
-        hoje.setHours(23, 59, 59, 999); // Ajuste para considerar até o fim do dia de hoje
+        hoje.setHours(23, 59, 59, 999);
         const dataEscolhida = new Date(dataDespesa);
 
         if (dataEscolhida > hoje) {
@@ -51,7 +49,6 @@ export default function NovaSolicitacao() {
             return;
         }
 
-        // 3. Campos obrigatórios básicos
         if (!categoriaId || !dataDespesa) {
             alert("Preencha todos os campos obrigatórios.");
             return;

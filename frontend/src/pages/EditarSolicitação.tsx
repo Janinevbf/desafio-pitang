@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function EditarSolicitacao() {
-    const { id } = useParams(); // Pega o ID da URL
+    const { id } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,6 @@ export default function EditarSolicitacao() {
                 const response = await api.get(`/reembolsos/${id}`);
                 const r = response.data;
 
-                // TRAVA DE SEGURANÇA: Se não for rascunho, expulsa o usuário
                 if (r.status !== 'DRAFT') {
                     alert("Apenas rascunhos podem ser editados!");
                     navigate("/dashboard");
@@ -32,7 +31,7 @@ export default function EditarSolicitacao() {
                 setDescricao(r.descricao);
                 setValor(r.valor.toString());
                 setCategoriaId(r.categoriaId);
-                // Formata a data para o input tipo 'date' (YYYY-MM-DD)
+
                 setDataDespesa(new Date(r.dataDespesa).toISOString().split('T')[0]);
                 setLoading(false);
             } catch (error) {
@@ -46,7 +45,7 @@ export default function EditarSolicitacao() {
     async function handleUpdate(e: React.FormEvent) {
         e.preventDefault();
 
-        // Validações idênticas à criação
+
         const valorNumerico = parseFloat(valor);
         if (valorNumerico <= 0) return alert("Valor inválido");
 
@@ -54,7 +53,6 @@ export default function EditarSolicitacao() {
         if (new Date(dataDespesa) > hoje) return alert("A data não pode ser futura");
 
         try {
-            // Chamada para a rota de edição (PUT ou PATCH /reembolsos/:id)
             await api.put(`/reembolsos/${id}`, {
                 descricao,
                 valor: valorNumerico,
@@ -79,7 +77,7 @@ export default function EditarSolicitacao() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleUpdate} className="space-y-4">
-                        {/* Mesmos Inputs do componente de criar... */}
+
                         <div className="space-y-2">
                             <Label>Descrição</Label>
                             <Input value={descricao} onChange={e => setDescricao(e.target.value)} />

@@ -3,6 +3,8 @@ import api from "../services/api"
 
 interface AuthContextData {
     signIn: (credentials: { email: string; senha: string }) => Promise<void>
+    signUp: (data: { nome: string; email: string; senha: string; perfil?: string }) => Promise<void>
+    signOut: () => void
     user: any
     isAuthenticated: boolean
 }
@@ -11,7 +13,7 @@ export const AuthContext = createContext({} as AuthContextData)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<any>(null);
-    const [loading, setLoading] = useState(true); // Adicione um estado de loading
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const recoveredUser = localStorage.getItem("@Pitang:user");
@@ -25,20 +27,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
     }, []);
 
-    // No signIn, salve também o usuário no localStorage
+
     async function signIn({ email, senha }): Promise<void> {
         const response = await api.post("auth/login", { email, senha });
         const { token, user } = response.data;
 
-        // 1. IMPORTANTE: Atualizar o estado do React para a UI mudar na hora
+
         setUser(user);
 
-        // 2. IMPORTANTE: Sobrescrever os dados antigos no Storage
+
         localStorage.setItem("@Reembolso:token", token);
         localStorage.setItem("@Reembolso:user", JSON.stringify(user));
 
-        // 3. Configurar o cabeçalho para as próximas chamadas de API
         api.defaults.headers.authorization = `Bearer ${token}`;
+    }
+
+    async function signUp(data: { nome: string; email: string; senha: string; perfil?: string }) {
+        const response = await api.post("auth/cadastro", data);
+        const { token, user } = response.data;
+
+        setUser(user);
+        localStorage.setItem("@Reembolso:token", token);
+        localStorage.setItem("@Reembolso:user", JSON.stringify(user));
+        api.defaults.headers.authorization = `Bearer ${token}`;
+    }
+
+    function signOut() {
+        setUser(null);
+        localStorage.removeItem("@Reembolso:token");
+        localStorage.removeItem("@Reembolso:user");
+        delete api.defaults.headers.authorization;
     }
 
     const isAuthenticated = !!user;
@@ -46,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (loading) return <div>Carregando...</div>;
 
     return (
-        <AuthContext.Provider value={{ signIn, user, isAuthenticated }}>
+        <AuthContext.Provider value={{ signIn, signUp, signOut, user, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );

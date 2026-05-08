@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 export default function CategoriasAdmin() {
     const [categorias, setCategorias] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [loadingId, setLoadingId] = useState<string | null>(null); // Para o Switch
+    const [loadingId, setLoadingId] = useState<string | null>(null);
 
-    // Estados para criação
+
     const [open, setOpen] = useState(false);
     const [novoNome, setNovoNome] = useState("");
     const [criando, setCriando] = useState(false);
@@ -64,7 +64,7 @@ export default function CategoriasAdmin() {
             setCategorias(prev => [...prev, res.data].sort((a, b) => a.nome.localeCompare(b.nome)));
             toast.success("Categoria criada!");
             setNovoNome("");
-            setOpen(false); // Fecha o modal
+            setOpen(false);
         } catch (err: any) {
             toast.error(err.response?.data?.message || "Erro ao criar categoria.");
         } finally {
@@ -109,7 +109,7 @@ export default function CategoriasAdmin() {
                                     <DialogHeader>
                                         <DialogTitle>Título do Modal</DialogTitle>
                                     </DialogHeader>
-                                    {/* Seu formulário ou conteúdo aqui */}
+
                                     <DialogFooter>
                                         <Button type="submit">Salvar</Button>
                                     </DialogFooter>

@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/bagde";
-import { ArrowLeft, Send, Paperclip, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, Send, Paperclip, CheckCircle, XCircle, LogOut } from "lucide-react";
 
 export default function ReembolsoDetalhe() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { signOut } = useAuth();
 
     // Estados
     const [reembolso, setReembolso] = useState<any>(null);
@@ -17,20 +19,24 @@ export default function ReembolsoDetalhe() {
     const [showRejeitarForm, setShowRejeitarForm] = useState(false);
     const [mostrarCampoRejeitar, setMostrarCampoRejeitar] = useState(false);
     const [perfilUsuario, setPerfilUsuario] = useState<string>("");
+    const [userId, setUserId] = useState<string>("");
+
+    const handleLogout = () => {
+        signOut();
+        navigate("/login");
+    };
 
 
 
     useEffect(() => {
         const carregarDados = async () => {
-            // 1. Pegar perfil do storage
             const userJson = localStorage.getItem("@Reembolso:user");
             if (userJson) {
                 const user = JSON.parse(userJson);
-                // Usamos toUpperCase para evitar erro de "Financeiro" vs "FINANCEIRO"
+                setUserId(user.id || "");
                 setPerfilUsuario(user.perfil?.toUpperCase() || "");
             }
 
-            // 2. Buscar reembolso
             if (id) {
                 try {
                     const res = await api.get(`/reembolsos/${id}`);
@@ -46,7 +52,6 @@ export default function ReembolsoDetalhe() {
     const statusAtual = reembolso?.status?.toUpperCase();
     const isFinanceiro = perfilUsuario === 'FINANCEIRO';
     const isAprovado = statusAtual === 'APPROVED';
-    // Funções de Ação
     const handleEnviarParaAnalise = async () => {
         try {
             setLoading(true);
@@ -67,14 +72,14 @@ export default function ReembolsoDetalhe() {
         }
         try {
             setLoading(true);
-            await api.patch(`/reembolsos/${id}/avaliar`, {
+            const res = await api.patch(`/reembolsos/${id}/avaliar`, {
                 status: novoStatus,
                 justificativa
             });
             alert(`Solicitação ${novoStatus.toLowerCase()}!`);
             navigate("/dashboard");
-        } catch (err) {
-            alert("Erro na avaliação.");
+        } catch (err: any) {
+            alert(err.response?.data?.error || err.response?.data?.mensagem || "Erro na avaliação.");
         } finally {
             setLoading(false);
         }
@@ -82,7 +87,6 @@ export default function ReembolsoDetalhe() {
     const handlePagar = async () => {
         try {
             setLoading(true);
-            // Rota: PATCH /reembolsos/:id/pagar
             await api.patch(`/reembolsos/${id}/pagar`);
             alert("Pagamento confirmado com sucesso!");
             navigate("/dashboard");
@@ -97,11 +101,10 @@ export default function ReembolsoDetalhe() {
             && reembolso?.status === 'APPROVED';
         try {
             setLoading(true);
-            // Rota correta do seu backend: PATCH /reembolsos/:id/pagar
             await api.patch(`/reembolsos/${id}/pagar`);
 
             alert("Pagamento registrado com sucesso!");
-            navigate("/dashboard"); // Volta para o dashboard após pagar
+            navigate("/dashboard");
         } catch (error: any) {
             console.error("Erro ao pagar:", error);
             alert(error.response?.data?.error || "Erro ao confirmar pagamento.");
@@ -117,9 +120,18 @@ export default function ReembolsoDetalhe() {
 
     return (
         <div className="p-8 max-w-3xl mx-auto">
-            <Button variant="ghost" className="mb-4" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-            </Button>
+            <div className="flex justify-between items-center mb-4">
+                <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+                </Button>
+                <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                    <LogOut className="h-4 w-4" />
+                </Button>
+            </div>
 
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between border-b bg-slate-50/50">
@@ -128,7 +140,7 @@ export default function ReembolsoDetalhe() {
                         <p className="text-sm text-muted-foreground mt-1">ID: {id?.slice(0, 8)}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        {reembolso.status === 'DRAFT' && (
+                        {reembolso.status === 'DRAFT' && reembolso.solicitanteId === userId && (
                             <Button variant="outline" size="sm" onClick={() => navigate(`/reembolsos/editar/${reembolso.id}`)}>
                                 Editar
                             </Button>
@@ -143,7 +155,7 @@ export default function ReembolsoDetalhe() {
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
 
-                    {/* Dados Básicos */}
+
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <p className="text-sm text-muted-foreground">Descrição</p>
@@ -156,7 +168,7 @@ export default function ReembolsoDetalhe() {
                             </p>
                         </div>
                     </div>
-                    {/* --- ÁREA DE PAGAMENTO (Liberada para Gestor e Financeiro testarem) --- */}
+
                     {reembolso.status?.toUpperCase() === 'APPROVED' && (perfilUsuario === 'FINANCEIRO' || perfilUsuario === 'GESTOR') && (
                         <div className="mt-6 p-6 border-2 border-blue-200 bg-blue-50 rounded-xl shadow-sm animate-in fade-in zoom-in duration-300">
                             <div className="flex items-center gap-3 mb-4 text-blue-800">
@@ -182,7 +194,7 @@ export default function ReembolsoDetalhe() {
                             </Button>
                         </div>
                     )}
-                    {/* Área do Gestor (O Painel Amarelo) */}
+
                     {isGestor && isSubmitted && (
                         <div className="bg-amber-50 p-4 rounded-lg border-2 border-amber-200 space-y-4">
                             <h3 className="font-bold text-amber-800">Decisão do Gestor</h3>
@@ -211,7 +223,7 @@ export default function ReembolsoDetalhe() {
                             </div>
                         </div>
                     )}
-                    {/* --- PAINEL EXCLUSIVO DO FINANCEIRO --- */}
+
                     {isFinanceiro && isAprovado && (
                         <div className="mt-6 p-6 border-2 border-blue-200 bg-blue-50 rounded-xl shadow-sm">
                             <div className="flex items-center gap-3 mb-4 text-blue-800">
@@ -233,16 +245,15 @@ export default function ReembolsoDetalhe() {
                             </Button>
                         </div>
                     )}
-                    {/* Rodapé */}
+
                     <div className="flex justify-end gap-2 border-t pt-4">
                         <Button variant="outline" onClick={() => navigate("/dashboard")}>Sair</Button>
-                        {reembolso.status === 'DRAFT' && (
+                        {reembolso.status === 'DRAFT' && reembolso.solicitanteId === userId && (
                             <Button onClick={handleEnviarParaAnalise} disabled={loading} className="bg-blue-600">
                                 Enviar para Análise
                             </Button>
                         )}
                     </div>
-                    {/* --- SEÇÃO DE HISTÓRICO / AUDITORIA --- */}
                     <div className="mt-8 space-y-4">
                         <h3 className="font-semibold text-lg flex items-center gap-2">
                             <Paperclip className="h-5 w-5" /> Histórico da Solicitação
@@ -252,7 +263,7 @@ export default function ReembolsoDetalhe() {
                             {reembolso.historicos?.length > 0 ? (
                                 reembolso.historicos.map((h: any) => (
                                     <div key={h.id} className="relative">
-                                        {/* Pontinho na linha do tempo */}
+
                                         <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-slate-300 border-2 border-white" />
 
                                         <div className="bg-white p-3 rounded-lg border shadow-sm">
@@ -278,7 +289,6 @@ export default function ReembolsoDetalhe() {
                             ) : (
                                 <p className="text-sm text-muted-foreground italic">Nenhum histórico registrado.</p>
                             )}
-                            {/* --- SEÇÃO DE HISTÓRICO --- */}
                             <div className="mt-10 border-t pt-6">
                                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                     <Paperclip className="h-5 w-5" /> Trilha de Auditoria
@@ -287,7 +297,7 @@ export default function ReembolsoDetalhe() {
                                 <div className="space-y-4">
                                     {reembolso.historicos?.map((log: any) => (
                                         <div key={log.id} className="flex gap-4 border-l-2 border-slate-200 ml-2 pl-4 relative">
-                                            {/* Marcador na linha */}
+
                                             <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-slate-300 border-2 border-white" />
 
                                             <div className="flex-1 bg-slate-50 p-3 rounded-lg text-sm shadow-sm">

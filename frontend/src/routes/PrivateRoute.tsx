@@ -14,7 +14,7 @@ export function PrivateRoute({ children, roles }: PrivateRouteProps) {
     if (!isAuthenticated) return <Navigate to="/" />;
 
     if (roles && !roles.includes(user?.perfil || '')) {
-        return <Navigate to="/dashboard" />; // Redireciona se não tiver permissão
+        return <Navigate to="/dashboard" />;
     }
 
 

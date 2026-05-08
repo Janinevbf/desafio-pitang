@@ -1,26 +1,33 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import api from "@/services/api";
-import { criarReembolsoSchema, CriarUsuarioInput } from "@/schemas/usuario.schema"; // Importe seu schema
+import { useAuth } from "@/context/AuthContext";
+import { criarReembolsoSchema } from "@/schemas/reembolso.schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { TextArea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, PlusCircle, Save, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ReembolsoForm() {
-    const { id } = useParams(); // Se existir, é modo Edição
+    const { id } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [categorias, setCategorias] = useState<any[]>([]);
     const isEdit = Boolean(id);
+    const { signOut } = useAuth();
 
-    const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
+    const handleLogout = () => {
+        signOut();
+        navigate("/login");
+    };
+
+    const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({
         resolver: zodResolver(criarReembolsoSchema),
         defaultValues: {
             descricao: "",
@@ -34,22 +41,28 @@ export default function ReembolsoForm() {
         async function fetchData() {
             try {
                 setLoading(true);
-                // 1. Carregar Categorias (Apenas as ATIVAS para novas, ou todas para edição)
-                const resCat = await api.get("/categorias");
-                setCategorias(resCat.data.filter((c: any) => c.ativo || isEdit));
 
-                // 2. Se for edição, carregar os dados do reembolso
+                const resCat = await api.get("/categorias");
+                const cats = resCat.data.filter((c: any) => c.ativo || isEdit);
+                setCategorias(cats);
+
+                if (!isEdit && cats.length > 0) {
+                    const primeiraAtiva = cats.find((c: any) => c.ativo);
+                    if (primeiraAtiva) {
+                        setValue("categoriaId", primeiraAtiva.id);
+                    }
+                }
+
                 if (isEdit) {
                     const resReembolso = await api.get(`/reembolsos/${id}`);
                     const data = resReembolso.data;
 
-                    // REQUISITO: Bloquear edição se não for rascunho
+
                     if (data.status !== 'DRAFT') {
                         toast.error("Apenas rascunhos podem ser editados!");
                         return navigate("/dashboard");
                     }
 
-                    // Preencher o formulário
                     reset({
                         descricao: data.descricao,
                         valor: Number(data.valor),
@@ -87,74 +100,127 @@ export default function ReembolsoForm() {
     if (loading && isEdit) return <div className="flex justify-center p-10"><Loader2 className="animate-spin" /></div>;
 
     return (
-        <div className="p-8 max-w-2xl mx-auto">
-            <Button variant="ghost" className="mb-4" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-            </Button>
+        <div className="p-8 max-w-2xl mx-auto min-h-screen bg-slate-50">
+            <div className="flex justify-between items-center mb-4">
+                <Button
+                    variant="ghost"
+                    className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-colors"
+                    onClick={() => navigate("/dashboard")}
+                >
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
+                </Button>
+                <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                    <LogOut className="h-4 w-4" />
+                </Button>
+            </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{isEdit ? "Editar Solicitação" : "Nova Solicitação de Reembolso"}</CardTitle>
+            <Card className="shadow-lg border-t-4 border-t-orange-500">
+                <CardHeader className="space-y-1">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-orange-100 rounded-lg">
+                            <PlusCircle className="h-6 w-6 text-orange-600" />
+                        </div>
+                        <CardTitle className="text-2xl font-bold text-gray-800">
+                            {isEdit ? "Editar Solicitação" : "Nova Solicitação de Reembolso"}
+                        </CardTitle>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        Preencha os detalhes da despesa para processar o seu reembolso.
+                    </p>
                 </CardHeader>
+
                 <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
                         <div className="space-y-2">
-                            <Label htmlFor="descricao">Descrição da Despesa</Label>
-                            <Textarea
+                            <Label htmlFor="descricao" className="font-semibold text-gray-700">Descrição da Despesa</Label>
+                            <TextArea
                                 id="descricao"
-                                placeholder="Ex: Almoço com cliente X..."
+                                placeholder="Ex: Almoço com cliente X durante evento em SP..."
+                                className="focus:ring-orange-500 border-gray-300"
                                 {...register("descricao")}
+                                error={errors.descricao?.message}
                             />
-                            {errors.descricao && <span className="text-sm text-red-500">{errors.descricao.message}</span>}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                             <div className="space-y-2">
-                                <Label htmlFor="valor">Valor (R$)</Label>
-                                <Input
-                                    id="valor"
-                                    type="number"
-                                    step="0.01"
-                                    {...register("valor", { valueAsNumber: true })}
-                                />
-                                {errors.valor && <span className="text-sm text-red-500">{errors.valor.message}</span>}
+                                <Label htmlFor="valor" className="font-semibold text-gray-700">Valor (R$)</Label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-2.5 text-gray-500 text-sm">R$</span>
+                                    <Input
+                                        id="valor"
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0,00"
+                                        className="pl-9 focus:ring-orange-500 border-gray-300"
+                                        {...register("valor", { valueAsNumber: true })}
+                                    />
+                                </div>
+                                {errors.valor && <span className="text-xs text-red-500 font-medium">{errors.valor.message}</span>}
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="dataDespesa">Data da Despesa</Label>
-                                <Input id="dataDespesa" type="date" {...register("dataDespesa")} />
-                                {errors.dataDespesa && <span className="text-sm text-red-500">{errors.dataDespesa.message}</span>}
+                                <Label htmlFor="dataDespesa" className="font-semibold text-gray-700">Data da Despesa</Label>
+                                <Input
+                                    id="dataDespesa"
+                                    type="date"
+                                    className="focus:ring-orange-500 border-gray-300 text-gray-700"
+                                    {...register("dataDespesa")}
+                                />
+                                {errors.dataDespesa && <span className="text-xs text-red-500 font-medium">{errors.dataDespesa.message}</span>}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label>Categoria</Label>
+                            <Label className="font-semibold text-gray-700">Categoria</Label>
                             <Select
-                                onValueChange={(value) => setValue("categoriaId", value)}
-                                value={isEdit ? undefined : undefined} // Controlled logic
+                                value={watch("categoriaId")}
+                                onValueChange={(value: string) => setValue("categoriaId", value)}
                             >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione uma categoria" />
+                                <SelectTrigger className="focus:ring-orange-500 border-gray-300">
+                                    <SelectValue placeholder="Selecione a categoria da despesa" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categorias.map((cat) => (
-                                        <SelectItem key={cat.id} value={cat.id}>
-                                            {cat.nome} {!cat.ativo && "(Inativa)"}
+                                        <SelectItem
+                                            key={cat.id}
+                                            value={cat.id}
+                                            disabled={!cat.ativo}
+                                        >
+                                            {cat.ativo ? cat.nome : `${cat.nome} (Indisponível)`}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {errors.categoriaId && <span className="text-sm text-red-500">{errors.categoriaId.message}</span>}
+                            {errors.categoriaId && <span className="text-xs text-red-500 font-medium">{errors.categoriaId.message}</span>}
                         </div>
 
-                        <div className="pt-4 flex justify-end gap-2">
-                            <Button type="button" variant="outline" onClick={() => navigate("/dashboard")}>
+                        <div className="pt-6 flex justify-end gap-3 border-t border-gray-100">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="border-gray-300 hover:bg-gray-50 text-gray-600"
+                                onClick={() => navigate("/dashboard")}
+                            >
                                 Cancelar
                             </Button>
-                            <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white">
-                                {loading ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2 h-4 w-4" />}
-                                {isEdit ? "Salvar Alterações" : "Salvar como Rascunho"}
+                            <Button
+                                type="submit"
+                                disabled={loading}
+                                className="bg-orange-500 hover:bg-orange-600 text-white shadow-md transition-all px-8"
+                            >
+                                {loading ? (
+                                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                                ) : (
+                                    <Save className="mr-2 h-4 w-4" />
+                                )}
+                                {isEdit ? "Salvar Alterações" : "Salvar Solicitação"}
                             </Button>
                         </div>
                     </form>

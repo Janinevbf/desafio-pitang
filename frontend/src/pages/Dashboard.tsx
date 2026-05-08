@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "@/services/api";
-import { Paperclip, PlusCircle, Eye, Pencil } from "lucide-react";
+import { Paperclip, PlusCircle, Eye, Pencil, LogOut } from "lucide-react";
 import {
     Table,
     TableBody,
@@ -9,9 +9,9 @@ import {
     TableHeader,
     TableRow,
 } from "../components/ui/table";
-import { Badge } from "@/components/ui/bagde"; // Verifique se o nome da pasta é 'bagde' ou 'badge'
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/bagde";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FinanceiroLista } from "./FinanceiroLista";
 
@@ -19,21 +19,24 @@ export default function Dashboard() {
     const [reembolsos, setReembolsos] = useState([]);
     const [perfil, setPerfil] = useState("");
     const navigate = useNavigate();
+    const { signOut } = useAuth();
 
-    // 1. Carregar perfil do usuário
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem("@Reembolso:user") || "{}");
-        // Mantive sua lógica: se vazio, assume FINANCEIRO para teste
         setPerfil(user.perfil || "FINANCEIRO");
 
     }, []);
 
-    // 2. Carregar meus reembolsos
     useEffect(() => {
         api.get("/reembolsos/meus-reembolsos")
             .then(response => setReembolsos(response.data))
             .catch(err => console.error("Erro ao carregar reembolsos", err));
     }, []);
+
+    const handleLogout = () => {
+        signOut();
+        navigate("/login");
+    };
 
     const isFinanceiro = perfil === "FINANCEIRO" || perfil === "GESTOR";
 
@@ -47,42 +50,62 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="p-8 max-w-6xl mx-auto space-y-8">
-            {/* Cabeçalho */}
-            <div className="flex justify-between items-end">
+        <div className="p-8 max-w-6xl mx-auto space-y-8 bg-slate-50 min-h-screen">
+
+            <div className="flex justify-between items-end border-b pb-6 border-orange-100">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                    <p className="text-muted-foreground">Bem-vindo ao sistema de gestão de despesas.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-800">Dashboard</h1>
+                    <p className="text-muted-foreground italic">
+                        Bem-vindo ao sistema de gestão de despesas.
+                    </p>
                 </div>
-                <Button onClick={() => navigate("/reembolsos/novo")} className="bg-indigo-600 hover:bg-indigo-700">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Novo Reembolso
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => navigate("/reembolsos/novo")}
+                        className="bg-orange-500 hover:bg-orange-600 shadow-md transition-all"
+                    >
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Novo Reembolso
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={handleLogout}
+                        className="border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                        <LogOut className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
 
-            {/* Sistema de Abas */}
             <Tabs defaultValue="meus" className="w-full">
-                <TabsList className="grid w-full max-w-[400px] grid-cols-2 mb-6">
-                    <TabsTrigger value="meus">Minhas Solicitações</TabsTrigger>
+                <TabsList className="grid w-full max-w-[400px] grid-cols-2 mb-6 bg-orange-50 p-1">
+                    <TabsTrigger
+                        value="meus"
+                        className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                    >
+                        Minhas Solicitações
+                    </TabsTrigger>
                     {isFinanceiro && (
-                        <TabsTrigger value="financeiro" className="data-[state=active]:bg-green-600 data-[state=active]:text-white">
+                        <TabsTrigger
+                            value="financeiro"
+                            className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+                        >
                             Fila de Pagamento
                         </TabsTrigger>
                     )}
                 </TabsList>
 
-                {/* ABA 1: MEUS REEMBOLSOS */}
-                <TabsContent value="meus" className="border rounded-lg bg-white shadow-sm overflow-hidden">
+                <TabsContent value="meus" className="border rounded-lg bg-white shadow-lg overflow-hidden border-orange-100">
                     <Table>
-                        <TableHeader className="bg-slate-50">
+                        <TableHeader className="bg-orange-50/50">
                             <TableRow>
-                                <TableHead>Data</TableHead>
-                                <TableHead>Descrição</TableHead>
-                                <TableHead>Categoria</TableHead>
-                                <TableHead>Valor</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Anexo</TableHead>
-                                <TableHead className="text-right">Ações</TableHead>
+                                <TableHead className="font-bold text-orange-900">Data</TableHead>
+                                <TableHead className="font-bold text-orange-900">Descrição</TableHead>
+                                <TableHead className="font-bold text-orange-900">Categoria</TableHead>
+                                <TableHead className="font-bold text-orange-900">Valor</TableHead>
+                                <TableHead className="font-bold text-orange-900">Status</TableHead>
+                                <TableHead className="font-bold text-orange-900">Anexo</TableHead>
+                                <TableHead className="text-right font-bold text-orange-900">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -94,21 +117,25 @@ export default function Dashboard() {
                                 </TableRow>
                             ) : (
                                 reembolsos.map((item: any) => (
-                                    <TableRow key={item.id}>
+                                    <TableRow key={item.id} className="hover:bg-orange-50/30 transition-colors">
                                         <TableCell>{new Date(item.dataDespesa).toLocaleDateString('pt-BR')}</TableCell>
                                         <TableCell className="font-medium">{item.descricao}</TableCell>
-                                        <TableCell>{item.categoria?.nome || 'Sem categoria'}</TableCell>
-                                        <TableCell className="font-semibold">
+                                        <TableCell>
+                                            <span className="px-2 py-1 rounded-full bg-slate-100 text-xs">
+                                                {item.categoria?.nome || 'Sem categoria'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="font-semibold text-gray-700">
                                             {Number(item.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge className={`${getStatusColor(item.status)} border-none shadow-none`}>
+                                            <Badge className={`${getStatusColor(item.status)} border-none shadow-sm`}>
                                                 {item.status}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
                                             {item.anexos?.[0] ? (
-                                                <a href={item.anexos[0].urlArquivo} target="_blank" rel="noreferrer" className="text-blue-600 flex items-center hover:underline">
+                                                <a href={item.anexos[0].urlArquivo} target="_blank" rel="noreferrer" className="text-orange-600 flex items-center hover:underline font-medium">
                                                     <Paperclip className="h-3 w-3 mr-1" /> Ver
                                                 </a>
                                             ) : <span className="text-gray-400">---</span>}
@@ -117,12 +144,19 @@ export default function Dashboard() {
                                             <Button
                                                 variant="outline"
                                                 size="icon"
-                                                onClick={() => navigate(`/reembolsos/${item.id}`)} // Sem a palavra 'detalhe'
+                                                className="hover:bg-orange-50 border-orange-200"
+                                                onClick={() => navigate(`/reembolsos/${item.id}`)}
                                             >
-                                                <Eye className="h-4 w-4" />
+                                                <Eye className="h-4 w-4 text-orange-600" />
                                             </Button>
-                                            {(item.status === "DRAFT") && (
-                                                <Button variant="ghost" size="icon" onClick={() => navigate(`/reembolsos/editar/${item.id}`)}>
+
+                                            {(item.status === "DRAFT" || item.status === "RASCUNHO") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="hover:bg-amber-50"
+                                                    onClick={() => navigate(`/reembolsos/editar/${item.id}`)}
+                                                >
                                                     <Pencil className="h-4 w-4 text-amber-600" />
                                                 </Button>
                                             )}
@@ -134,9 +168,13 @@ export default function Dashboard() {
                     </Table>
                 </TabsContent>
 
-                {/* ABA 2: FILA FINANCEIRA */}
+
                 {isFinanceiro && (
-                    <TabsContent value="financeiro" className="border rounded-lg bg-white shadow-sm p-6">
+                    <TabsContent value="financeiro" className="border rounded-lg bg-white shadow-lg p-6 border-emerald-100">
+                        <div className="flex items-center gap-2 mb-4 text-emerald-700 font-bold">
+                            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                            Aguardando Pagamento
+                        </div>
                         <FinanceiroLista />
                     </TabsContent>
                 )}
