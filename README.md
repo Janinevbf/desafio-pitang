@@ -50,10 +50,9 @@ bun run dev
 
 Colaborador: colaborador@test.com pitang123
 
-Gestor: gestor@empresa.com pitang123
 Gestor: gestor@test.com pitang123
 
-Financeiro: financeiro@empresa.com pitang123
+
 Financeiro: financeiro@test.com pitang123
 
 Admin: admin@test.com  pitang123
